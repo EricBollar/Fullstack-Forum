@@ -61,7 +61,7 @@ export class PostResolver {
         try {
             await em.nativeDelete(Post, {id});
         } catch (err) {
-            console.error(err);
+            console.error("Error: ", err.message);
             return false;
         }
         return true;

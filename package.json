@@ -7,7 +7,8 @@
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js",
-    "start_deprecated": "ts-node src/index.ts"
+    "start_deprecated": "ts-node src/index.ts",
+    "migrate": "mikro-orm migration:create"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "@mikro-orm/migrations": "^5.4.2",
     "@mikro-orm/postgresql": "^5.4.2",
     "apollo-server-express": "^3.10.2",
+    "argon2": "^0.29.1",
     "express": "^4.18.1",
     "graphql": "^15.7.2",
     "pg": "^8.8.0",

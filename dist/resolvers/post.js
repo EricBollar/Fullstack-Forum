@@ -43,7 +43,7 @@ let PostResolver = class PostResolver {
             await em.nativeDelete(Post_1.Post, { id });
         }
         catch (err) {
-            console.error(err);
+            console.error("Error: ", err.message);
             return false;
         }
         return true;
