@@ -1,8 +1,7 @@
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { ObjectType, Resolver, Mutation, InputType, Field, Arg, Ctx } from "type-graphql";
+import { Query, ObjectType, Resolver, Mutation, InputType, Field, Arg, Ctx } from "type-graphql";
 import argon2 from "argon2";
-import { Session } from "express-session"
 
 @InputType()
 class UsernamePasswordInput {
@@ -33,6 +32,19 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+    @Query(() => User, {nullable: true})
+    async me (
+        @Ctx() { em, req }: MyContext
+    ): Promise<User | null> {
+        // not logged in
+        if (!req.session.userId) {
+            return null;
+        }
+
+        const user = await em.fork({}).findOne(User, {id: req.session.userId});
+        return user;
+    }
+
     // registers a new user
     @Mutation(() => UserResponse)
     async register(

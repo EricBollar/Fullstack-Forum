@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core"
 import { __prod__ } from "./constants";
-import { Post } from "./entities/Post";
 import mikroConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -10,9 +9,7 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import * as redis from 'redis';
-import { appendFile } from "fs";
 import { MyContext } from "./types";
-import { NONAME } from "dns";
 
 const main = async () => {
     const orm = await MikroORM.init(mikroConfig);
@@ -41,13 +38,14 @@ const main = async () => {
                 client: redisClient,
                 disableTouch: true,
             }),
+            // cookies in apollo studio...
+            // https://community.apollographql.com/t/cookie-not-shown-stored-in-the-browser/1901/3
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 Years
-                httpOnly: true,
-                // should use "lax"? but "none" works with apollo studio
+                httpOnly: true,// should use "lax" but only "none" works with apollo studio...
                 sameSite: "none", // csrf
-                // apollo studio is https but localhost isnt! Wonderful design choice!
-                // https://community.apollographql.com/t/cookie-not-shown-stored-in-the-browser/1901/3
+                // apollo studio is https while localhost is not! Wonderful design choice!
+                // this SHOULD be __prod__
                 secure: true // true -> only works in https
             },
             saveUninitialized: false,
