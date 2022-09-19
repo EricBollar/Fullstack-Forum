@@ -24,7 +24,7 @@ const main = async () => {
     // for some reason this require call is necessary...
     const session = require('express-session')
     const RedisStore = require('connect-redis')(session)
-    
+
     // without legacyMode: true, every damn value must be a string
     // whoever updated redis to be like this is a dumbass! 
     // https://github.com/redis/node-redis/issues/2116
@@ -47,6 +47,7 @@ const main = async () => {
                 // should use "lax"? but "none" works with apollo studio
                 sameSite: "none", // csrf
                 // apollo studio is https but localhost isnt! Wonderful design choice!
+                // https://community.apollographql.com/t/cookie-not-shown-stored-in-the-browser/1901/3
                 secure: true // true -> only works in https
             },
             saveUninitialized: false,

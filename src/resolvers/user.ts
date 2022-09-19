@@ -115,8 +115,8 @@ export class UserResolver {
             }
         }
 
+        // save to cookie
         req.session.userId = user.id;
-        console.log(req.session);
 
         return {user};
     }
