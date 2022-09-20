@@ -16,7 +16,7 @@
     display: flex;
 }
 
-.register__errorFont {
+.register__error {
     color: darkred;
     margin-top: 10px;
 }

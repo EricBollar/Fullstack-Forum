@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useRegisterMutation } from '../generated/graphql'
 import styles from '../styles/register.module.css'
+import Router, { useRouter } from 'next/router'
 
 interface registerProps {
 
@@ -17,14 +18,19 @@ const Register: React.FC<registerProps> = ({}) => {
         event.preventDefault(); // No Page Refresh
 
 		const response = await register({username, password});
+
+        // error was returned
         if (response.data?.register.errors) {
+            // update error message
             const newErrorMessage = response.data.register.errors[0].message
             setErrorMessage(newErrorMessage);
-            console.log(newErrorMessage);
+        // no errors, successful register
         } else {
+            // reset ui, reroute to home page
             setUsername("");
             setPassword("");
             setErrorMessage("Success! Logging in...");
+            Router.push("/");
         }
 	}
 
@@ -35,16 +41,16 @@ const Register: React.FC<registerProps> = ({}) => {
                 <h2 className={styles.register__title}>Register</h2>
 
                 {/* Username Input */}
-                <h3 className={styles.register__inputFont}>Username</h3>
+                <h3 className={styles.register__input}>Username</h3>
                 <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username..." type="text"/>
                 {/* Password Input */}
-                <h3 className={styles.register__inputFont}>Password</h3>
-                <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password..." type="text"/>
+                <h3 className={styles.register__input}>Password</h3>
+                <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password..." type="password"/>
             
                 {/* Submit Button */}
                 <button onClick={handleSubmit} type="submit">Register</button>
                 {/* Error Messages */}
-                <h3 className={styles.register__errorFont}>{errorMessage}</h3>
+                <h3 className={styles.register__error}>{errorMessage}</h3>
             </form>
         </div>
     );

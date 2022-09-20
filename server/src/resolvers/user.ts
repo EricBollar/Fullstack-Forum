@@ -2,6 +2,7 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Query, ObjectType, Resolver, Mutation, InputType, Field, Arg, Ctx } from "type-graphql";
 import argon2 from "argon2";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 class UsernamePasswordInput {
@@ -74,18 +75,26 @@ export class UserResolver {
 
         // plain text password in db is bad!
         const hashedPassword = await argon2.hash(options.password);
-        const user = em.fork({}).create(User, {
-            username: options.username, // currently case sensitive
-            password: hashedPassword
-        });
+        let user;
 
         try {
-            await em.fork({}).persistAndFlush(user);
+             const result = await (em as EntityManager).fork({}).createQueryBuilder(User).getKnexQuery()
+                .insert(
+                    {
+                        username: options.username, // currently case sensitive
+                        password: hashedPassword,
+                        // need underscores because that is name of column in db
+                        // Knex does not know that mikro-orm adds them so we must add
+                        created_at: new Date(),
+                        updated_at: new Date()
+                    }
+                ).returning('*');
+            user = result[0];
         } catch (err) {
             console.log(err.message);
 
             // duplicate username
-            if (err.code === "23505") {
+            if (err.detail.includes("already exists")) {
                 return {
                     errors: [{
                         field: "username",

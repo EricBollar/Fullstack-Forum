@@ -84,16 +84,20 @@ let UserResolver = class UserResolver {
             };
         }
         const hashedPassword = await argon2_1.default.hash(options.password);
-        const user = em.fork({}).create(User_1.User, {
-            username: options.username,
-            password: hashedPassword
-        });
+        let user;
         try {
-            await em.fork({}).persistAndFlush(user);
+            const result = await em.fork({}).createQueryBuilder(User_1.User).getKnexQuery()
+                .insert({
+                username: options.username,
+                password: hashedPassword,
+                created_at: new Date(),
+                updated_at: new Date()
+            }).returning('*');
+            user = result[0];
         }
         catch (err) {
             console.log(err.message);
-            if (err.code === "23505") {
+            if (err.detail.includes("already exists")) {
                 return {
                     errors: [{
                             field: "username",
