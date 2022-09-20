@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import { Provider, createClient } from 'urql'
-import { AppProps } from 'next/app';
+import { AppProps } from 'next/app'
 
 const client = createClient({ 
   url: "http://localhost:4000/graphql",

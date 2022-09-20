@@ -1,3 +1,8 @@
 * {
   margin: 0
 }
+
+a { /* Removes Default HTML Link styling */
+	text-decoration: none;
+	color: inherit;
+}

@@ -1,0 +1,42 @@
+.navbar {
+	display: flex;
+	padding: 15px 20px;
+	justify-content: space-between;
+	position: sticky;
+	background-color: rgb(252, 248, 208);
+	z-index: 100;
+	top: 0;
+	box-shadow: 0px 5px 8px -9px rgba(0, 0, 0, 0.75);
+}
+
+.navbar__left {
+	display: inline-block;
+}
+
+.navbar__right {
+	display: flex;
+}
+
+.navbar__option {
+	display: flex;
+	align-items: center;
+	padding: 0 30px;
+	cursor: pointer;
+    margin: 0 5px;
+}
+
+.navbar__option:hover {
+	background-color: rgb(165, 162, 132);
+	border-radius: 10px;
+	align-items: center;
+	padding: 0 30px;
+	border-bottom: none;
+}
+
+.navbar__author {
+    color: rgb(61, 61, 61);
+}
+
+.navbar__username {
+    margin: auto;
+}
