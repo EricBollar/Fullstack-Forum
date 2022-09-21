@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import { Provider, createClient, dedupExchange, fetchExchange } from 'urql'
 import { AppProps } from 'next/app'
 import { cacheExchange, Cache, QueryInput } from '@urql/exchange-graphcache';
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
+import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
 import Register from './register';
 
 // allows typing for update query
@@ -25,7 +25,17 @@ const client = createClient({
       Mutation: {
         // should probably destructure the following code in future...
 
-        // update query for updating MeQuery upon new successful LoginMutation
+        // update MeQuery to null for successful logout
+        logout: (result, args, cache, info) => {
+          betterUpdateQuery<LogoutMutation, MeQuery>(
+            cache,
+            {query: MeDocument},
+            result,
+            () => ({ me: null })
+          );
+        },
+
+        // update MeQuery upon new successful LoginMutation
         login: (result, args, cache, info) => {
           betterUpdateQuery<LoginMutation, MeQuery>(
             cache, 
@@ -44,7 +54,7 @@ const client = createClient({
             });
         },
 
-        // update query for updating MeQuery upon new successful RegisterMutation
+        // update MeQuery upon new successful RegisterMutation
         register: (result, args, cache, info) => {
           betterUpdateQuery<RegisterMutation, MeQuery>(
             cache, 

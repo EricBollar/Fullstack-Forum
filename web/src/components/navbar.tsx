@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react"
 import styles from "../styles/navbar.module.css"
 import NextLink from "next/link"
-import { useMeQuery } from "../generated/graphql";
+import { useMeQuery, useLogoutMutation } from "../generated/graphql";
 
 interface NavbarProps {
 
 }
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
+    const [,logout] = useLogoutMutation();
     const [{data, fetching}] = useMeQuery();
 
     let navbar__right;
@@ -41,9 +42,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             navbar__right = (
                 <>
                 <h3 className={styles.navbar__username}>{data!.me!.username}</h3>
-                <NextLink href="/logout">
-                    <button className={styles.navbar__option}>Logout</button>
-                </NextLink>
+                <button onClick={() => logout({})} className={styles.navbar__option}>Logout</button>
                 </>
             );
         }

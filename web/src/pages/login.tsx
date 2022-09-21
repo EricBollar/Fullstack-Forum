@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useLoginMutation } from '../generated/graphql'
 import styles from '../styles/login.module.css'
-import Router, { useRouter } from 'next/router'
+import Router from 'next/router'
 
 interface loginProps {
 
