@@ -1,7 +1,9 @@
+import { withUrqlClient } from 'next-urql'
 import Navbar from '../components/navbar'
-import styles from '../styles/index.module.css'
+import styles from "../styles/index.module.css"
+import { createUrqlClient } from '../utils/createUrqlClient'
 
-export default function Index() {
+const Index = () => {
   return (
     <>
     <Navbar />
@@ -9,3 +11,5 @@ export default function Index() {
     </>
   )
 }
+
+export default withUrqlClient(createUrqlClient)(Index);
