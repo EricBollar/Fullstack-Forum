@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import styles from "../styles/navbar.module.css"
 import NextLink from "next/link"
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
+import { isServer } from "../utils/isServer";
 
 interface NavbarProps {
 
@@ -9,7 +10,9 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
     const [,logout] = useLogoutMutation();
-    const [{data, fetching}] = useMeQuery();
+    
+    // pause prevents running on server (no cookie on server).
+    const [{data, fetching}] = useMeQuery({pause: isServer()});
 
     let navbar__right;
 
@@ -28,11 +31,11 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         if (!data?.me) {
             navbar__right = (
                 <>
-                <NextLink href="/login">
-                    <button className={styles.navbar__option}>Login</button>
+                <NextLink href="/login" suppressHydrationWarning={true}>
+                    <button suppressHydrationWarning={true} className={styles.navbar__option}>Login</button>
                 </NextLink>
-                <NextLink href="/register">
-                    <button className={styles.navbar__option}>Register</button>
+                <NextLink href="/register" suppressHydrationWarning={true}>
+                    <button suppressHydrationWarning={true} className={styles.navbar__option}>Register</button>
                 </NextLink>
                 </>
             )
@@ -41,8 +44,8 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         } else {
             navbar__right = (
                 <>
-                <h3 className={styles.navbar__username}>{data!.me!.username}</h3>
-                <button onClick={() => logout({})} className={styles.navbar__option}>Logout</button>
+                <h3 suppressHydrationWarning={true} className={styles.navbar__username}>{data!.me!.username}</h3>
+                <button suppressHydrationWarning={true} onClick={() => logout({})} className={styles.navbar__option}>Logout</button>
                 </>
             );
         }

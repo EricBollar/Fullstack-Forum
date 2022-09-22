@@ -11,7 +11,7 @@ interface loginProps {
 
 const Login: React.FC<loginProps> = ({}) => {
     const [,login] = useLoginMutation();
-    const [username, setUsername] = useState("");
+    const [usernameOrEmail, setUsernameOrEmail] = useState("");
 	const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -19,7 +19,7 @@ const Login: React.FC<loginProps> = ({}) => {
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault(); // No Page Refresh
 
-		const response = await login({username, password});
+		const response = await login({usernameOrEmail, password});
 
         // error was returned
         if (response.data?.login.errors) {
@@ -29,7 +29,7 @@ const Login: React.FC<loginProps> = ({}) => {
         // no errors, successful login
         } else {
             // reset ui, reroute to home page
-            setUsername("");
+            setUsernameOrEmail("");
             setPassword("");
             setErrorMessage("Success! Logging in...");
             Router.push("/");
@@ -42,9 +42,9 @@ const Login: React.FC<loginProps> = ({}) => {
                 {/* Title */}
                 <h2 className={styles.login__title}>Login</h2>
 
-                {/* Username Input */}
-                <h3 className={styles.login__inputHeader}>Username</h3>
-                <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username..." type="text"/>
+                {/* Username/Email Input */}
+                <h3 className={styles.login__inputHeader}>Username or Email</h3>
+                <input value={usernameOrEmail} onChange={(e) => setUsernameOrEmail(e.target.value)} placeholder="Username/Email..." type="text"/>
                 {/* Password Input */}
                 <h3 className={styles.login__inputHeader}>Password</h3>
                 <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password..." type="password"/>

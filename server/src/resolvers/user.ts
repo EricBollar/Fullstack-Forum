@@ -4,15 +4,8 @@ import { Query, ObjectType, Resolver, Mutation, InputType, Field, Arg, Ctx } fro
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "../constants";
-
-@InputType()
-class UsernamePasswordInput {
-    @Field()
-    username: string;
-
-    @Field()
-    password: string;
-}
+import { UserLoginInput } from "../utils/types";
+import { validateRegister } from "../utils/validateRegister";
 
 @ObjectType()
 class FieldError {
@@ -34,6 +27,15 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+    @Mutation(() => Boolean)
+    async forgotPassword(
+        @Arg('email') email: string,
+        @Ctx() {em} : MyContext,
+    ) {
+        // const user = await em.fork({}).findOne(User, {email});
+        return true;
+    }
+
     @Query(() => User, {nullable: true})
     async me (
         @Ctx() { em, req }: MyContext
@@ -50,28 +52,12 @@ export class UserResolver {
     // registers a new user
     @Mutation(() => UserResponse)
     async register(
-        @Arg('options') options: UsernamePasswordInput,
+        @Arg('options') options: UserLoginInput,
         @Ctx() {em}: MyContext
     ): Promise<UserResponse> {
-        // check username length
-        if (options.username.length <= 2) {
-            return {
-                errors: [{
-                    field: 'username',
-                    message: "Username length must be greater than 2 characters."
-                }]
-            }
-        }
-
-        // check password length
-        // may want to add better validation in future
-        if (options.password.length <= 6) {
-            return {
-                errors: [{
-                    field: 'password',
-                    message: "Password length must be greater than 6 characters."
-                }]
-            }
+        const response = validateRegister(options);
+        if (response) {
+            return {errors: response} ;
         }
 
         // plain text password in db is bad!
@@ -84,6 +70,8 @@ export class UserResolver {
                     {
                         username: options.username, // currently case sensitive
                         password: hashedPassword,
+                        email: options.email,
+
                         // need underscores because that is name of column in db
                         // Knex does not know that mikro-orm adds them so we must add
                         created_at: new Date(),
@@ -111,10 +99,15 @@ export class UserResolver {
     // attempts to login
     @Mutation(() => UserResponse)
     async login(
-        @Arg('options') options: UsernamePasswordInput,
+        @Arg('usernameOrEmail') usernameOrEmail: string,
+        @Arg('password') password: string,
         @Ctx() {em, req}: MyContext
     ): Promise<UserResponse> {
-        const user = await em.fork({}).findOne(User, { username: options.username });
+        const user = await em.fork({}).findOne(
+            User, 
+            usernameOrEmail.includes("@") ? { email: usernameOrEmail }
+            : { username: usernameOrEmail }
+            );
         
         // does username exist
         if (!user) {
@@ -127,7 +120,7 @@ export class UserResolver {
         }
 
         // is password correct
-        const valid = await argon2.verify(user.password, options.password);
+        const valid = await argon2.verify(user.password, password);
         if (!valid) {
             return {
                 errors: [{
