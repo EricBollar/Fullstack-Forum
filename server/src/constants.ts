@@ -8,3 +8,5 @@ export const FROM_EMAILSUBJECT = "Password Reset Requested - Fullstack Forum"
 
 // should make this secret in future
 export const FROM_EMAILPASSWORD = "QCkyKSMEYQ7VqEAFEh"
+
+export const FORGET_PASSWORD_PREFIX = "forget-password:"

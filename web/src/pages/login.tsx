@@ -53,6 +53,7 @@ const Login: React.FC<loginProps> = ({}) => {
                 <button onClick={handleSubmit} type="submit">Login</button>
                 {/* Error Messages */}
                 <h3 className={styles.login__error}>{errorMessage}</h3>
+                <a href="/forgotpassword">Forgot Password?</a>
             </form>
         </div>
     );

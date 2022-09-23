@@ -22,6 +22,8 @@ const argon2_1 = __importDefault(require("argon2"));
 const constants_1 = require("../constants");
 const types_1 = require("../utils/types");
 const validateRegister_1 = require("../utils/validateRegister");
+const sendEmail_1 = require("../utils/sendEmail");
+const uuid_1 = require("uuid");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -49,7 +51,35 @@ UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    async forgotPassword(email, { em }) {
+    async changePassword(token, newPassword, { em, req, redis }) {
+        const key = constants_1.FORGET_PASSWORD_PREFIX + token;
+        const userId = await redis.get(key);
+        if (!userId) {
+            return {
+                errors: [
+                    {
+                        field: "token",
+                        message: "Token invalid."
+                    }
+                ]
+            };
+        }
+        const user = em.fork({}).findOne(User_1.User, { id: userId });
+        user.password = await argon2_1.default.hash(newPassword);
+        await em.fork({}).persistAndFlush(user);
+        redis.del(key);
+        req.session.userId = user.id;
+        return { user };
+    }
+    async forgotPassword(email, { em, redis }) {
+        const user = await em.fork({}).findOne(User_1.User, { email });
+        if (!user) {
+            return true;
+        }
+        const token = (0, uuid_1.v4)();
+        const timeTillExpiration = 1000 * 60 * 60 * 24;
+        await redis.set(constants_1.FORGET_PASSWORD_PREFIX + token, user.id, "EX", timeTillExpiration);
+        await (0, sendEmail_1.sendEmail)(email, `<a href="http://localhost:3000/changepassword/${token}">Click Here to Reset Your Password</a>`);
         return true;
     }
     async me({ em, req }) {
@@ -96,7 +126,7 @@ let UserResolver = class UserResolver {
         if (!user) {
             return {
                 errors: [{
-                        field: "username",
+                        field: "usernameOrEmail",
                         message: "Incorrect Username/Password."
                     }]
             };
@@ -124,6 +154,15 @@ let UserResolver = class UserResolver {
         }));
     }
 };
+__decorate([
+    (0, type_graphql_1.Mutation)(() => UserResponse),
+    __param(0, (0, type_graphql_1.Arg)("token")),
+    __param(1, (0, type_graphql_1.Arg)("newPassword")),
+    __param(2, (0, type_graphql_1.Ctx)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "changePassword", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
     __param(0, (0, type_graphql_1.Arg)('email')),

@@ -1,11 +1,13 @@
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Query, ObjectType, Resolver, Mutation, InputType, Field, Arg, Ctx } from "type-graphql";
+import { Query, ObjectType, Resolver, Mutation, Field, Arg, Ctx } from "type-graphql";
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UserLoginInput } from "../utils/types";
 import { validateRegister } from "../utils/validateRegister";
+import { sendEmail } from "../utils/sendEmail";
+import { v4 } from "uuid";
 
 @ObjectType()
 class FieldError {
@@ -27,12 +29,69 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+    @Mutation(() => UserResponse)
+    async changePassword(
+        @Arg("token") token: string,
+        @Arg("newPassword") newPassword: string,
+        @Ctx() {em, req, redis}: MyContext
+    ): Promise<UserResponse> {
+        // should do password validity checks here but i am lazy
+
+        const key = FORGET_PASSWORD_PREFIX + token;
+
+        const userId = await redis.get(key);
+        if (!userId) {
+            return {
+                errors: [
+                    {
+                        field: "token",
+                        message: "Token invalid."
+                    }
+                ]
+            }
+        }
+
+        const user = em.fork({}).findOne(User, {id: userId});
+
+        // throw error if not user?
+
+        user.password = await argon2.hash(newPassword);
+        await em.fork({}).persistAndFlush(user);
+        redis.del(key);
+
+        // log in after password reset
+        // this is not working??
+        req.session.userId = user.id;
+
+        return {user}
+    }
+
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg('email') email: string,
-        @Ctx() {em} : MyContext,
+        @Ctx() {em, redis} : MyContext,
     ) {
-        // const user = await em.fork({}).findOne(User, {email});
+        const user = await em.fork({}).findOne(User, {email});
+        if (!user) {
+            // email is not in db
+            return true; // don't want them to guess user's emails
+        }
+
+
+        const token = v4();
+        const timeTillExpiration = 1000 * 60 * 60 * 24 // 24 hours
+        await redis.set(
+            FORGET_PASSWORD_PREFIX + token, 
+            user.id, 
+            "EX", // expiration call
+            timeTillExpiration
+            );
+
+        await sendEmail(
+            email, 
+            `<a href="http://localhost:3000/changepassword/${token}">Click Here to Reset Your Password</a>`
+            );
+
         return true;
     }
 
@@ -113,7 +172,7 @@ export class UserResolver {
         if (!user) {
             return {
                 errors: [{
-                    field: "username",
+                    field: "usernameOrEmail",
                     message: "Incorrect Username/Password."
                 }]
             }

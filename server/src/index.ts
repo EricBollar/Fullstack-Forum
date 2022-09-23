@@ -8,27 +8,25 @@ import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-import * as redis from 'redis';
+import Redis from "ioredis"
+import connectRedis from "connect-redis"
+import session from "express-session"
 import { MyContext } from "./types";
 import cors from "cors"
 
 const main = async () => {
     const orm = await MikroORM.init(mikroConfig);
-    
+
     // automatically run migrations
     await orm.getMigrator().up()
 
     const app = express();
 
-    // for some reason this require call is necessary...
-    const session = require('express-session')
-    const RedisStore = require('connect-redis')(session)
+    const RedisStore = connectRedis(session);
 
-    // without legacyMode: true, every damn value must be a string
-    // whoever updated redis to be like this is a dumbass! 
-    // https://github.com/redis/node-redis/issues/2116
-    const redisClient = redis.createClient({ legacyMode: true })
-    await redisClient.connect()
+    // ioredis > redis
+    const redis = new Redis();
+    // do not need to await redis.connect();
 
     // solves CORS issues
     app.use(
@@ -46,7 +44,7 @@ const main = async () => {
         session({
             name: COOKIE_NAME, 
             store: new RedisStore({ 
-                client: redisClient,
+                client: redis,
                 disableTouch: true,
             }),
             cookie: {
@@ -86,7 +84,7 @@ const main = async () => {
         }),
 
         // unique object that is accessible to all resolvers
-        context: ({req, res}): MyContext => ({em: orm.em , req, res})
+        context: ({req, res}): MyContext => ({em: orm.em , req, res, redis})
     });
     await apolloServer.start();
 
