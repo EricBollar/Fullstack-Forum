@@ -12,17 +12,27 @@ import { createUrqlClient } from '../utils/createUrqlClient'
 // but it gets in the way when trying to do things with ssr
 // so we need to use client side of next/dynamic
 import dynamic from 'next/dynamic'
+import Post from '../components/post'
 const Navbar = dynamic(() => import("../components/navbar"), { ssr: false })
 
 const Index = () => {
-  const [{data}] = usePostsQuery();
+  const [{data}] = usePostsQuery({
+    variables: {
+      limit: 10
+    }
+  });
 
   return (
     <>
     <Navbar />
-    <div className={styles.title}>Hello World!</div>
+    <h2 className={styles.title}>Posts</h2>
     {!data ? <div>Loading posts...</div> : data.posts.map((p) => 
-      <div key={p.id}>{p.title}</div>
+      <Post 
+        title = {p.title} 
+        text = {p.textSnippet}
+        timestamp = {new Date(parseInt(p.createdAt)).toTimeString()}
+        //creator = {await p.id}
+        />
     )}
     </>
   )

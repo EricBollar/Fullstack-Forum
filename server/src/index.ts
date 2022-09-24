@@ -15,6 +15,7 @@ import { DATASOURCE } from "./utils/initializeORM";
 
 const main = async () => {
     await DATASOURCE.initialize();
+    await DATASOURCE.runMigrations();
 
     const app = express();
 

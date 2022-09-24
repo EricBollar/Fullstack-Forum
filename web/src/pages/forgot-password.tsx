@@ -3,6 +3,7 @@ import { useForgotPasswordMutation, useLoginMutation } from '../generated/graphq
 import styles from '../styles/login.module.css'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
+import Navbar from '../components/navbar'
 
 interface forgotPasswordProps {
 
@@ -23,6 +24,8 @@ const ForgotPassword: React.FC<forgotPasswordProps> = ({}) => {
     }
 
     return(
+        <>
+        <Navbar />
         <div className={styles.forgotpassword}>
             <form>
                 {/* Title */}
@@ -38,6 +41,7 @@ const ForgotPassword: React.FC<forgotPasswordProps> = ({}) => {
                 <h3 className={styles.forgotpassword__message}>{message}</h3>
             </form>
         </div>
+        </>
     );
 }
 

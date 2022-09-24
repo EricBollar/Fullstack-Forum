@@ -1,5 +1,13 @@
 * {
-  margin: 0
+	margin: 0;
+}
+
+.app__body {
+	display: flex;
+}
+
+.app {
+	background-color: #f1f2f5;
 }
 
 a { /* Removes Default HTML Link styling */

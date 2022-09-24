@@ -1,7 +1,8 @@
 import { Post } from "../entities/Post";
-import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, Int, FieldResolver, Root } from "type-graphql";
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
+import { DATASOURCE } from "../utils/initializeORM";
 
 @InputType()
 class PostOptions {
@@ -11,12 +12,34 @@ class PostOptions {
     text: string;
 }
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
-    // returns all posts
+    @FieldResolver(() => String)
+    textSnippet(
+        @Root() root: Post
+    ): String {
+        return root.text.slice(0, 200);
+    }
+
+    // returns posts
     @Query(() => [Post])
-    posts(): Promise<Post[]> {
-        return Post.find();
+    posts(
+        @Arg("limit", () => Int) limit: number,
+        // cursor will be null on first call
+        @Arg("cursor", () => String, {nullable: true}) cursor: string | null
+    ): Promise<Post[]> {
+        const realLimit = Math.min(50, limit);
+        const queryBuilder = DATASOURCE
+            .getRepository(Post)
+            .createQueryBuilder("p") // alias of what we want to call it
+            .orderBy('"createdAt"', "DESC")
+            // there is a .limit() but for some reason .take() is best for pagination
+            // docs do not explicity say why...
+            .take(realLimit);
+        if (cursor) {
+            queryBuilder.where('"createdAt" < :cursor', {cursor: new Date(parseInt(cursor))});
+        }
+        return queryBuilder.getMany();
     }
 
     // returns one post or null given id
