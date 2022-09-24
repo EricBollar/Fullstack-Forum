@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import styles from "../styles/navbar.module.css"
 import NextLink from "next/link"
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
-import { isServer } from "../utils/isServer";
+import { isServer } from "../utils/isServer"; // should use but see below
 
 interface NavbarProps {
 
@@ -12,7 +12,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     const [,logout] = useLogoutMutation();
     
     // pause prevents running on server (no cookie on server).
-    const [{data, fetching}] = useMeQuery({pause: isServer()});
+    // should use pause: isServer() but lots of react hydration warnings
+    // don't think this is terrible for now but at scale it might be issue
+    const [{data, fetching}] = useMeQuery({pause: false});
 
     let navbar__right;
 
@@ -31,11 +33,12 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         if (!data?.me) {
             navbar__right = (
                 <>
-                <NextLink href="/login" suppressHydrationWarning={true}>
-                    <button suppressHydrationWarning={true} className={styles.navbar__option}>Login</button>
+                {/* Need to find fix for hydration warnings with isServer()! */}
+                <NextLink href="/login">
+                    <button className={styles.navbar__option}>Login</button>
                 </NextLink>
-                <NextLink href="/register" suppressHydrationWarning={true}>
-                    <button suppressHydrationWarning={true} className={styles.navbar__option}>Register</button>
+                <NextLink href="/register">
+                    <button className={styles.navbar__option}>Register</button>
                 </NextLink>
                 </>
             )
@@ -44,8 +47,11 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         } else {
             navbar__right = (
                 <>
-                <h3 suppressHydrationWarning={true} className={styles.navbar__username}>{data!.me!.username}</h3>
-                <button suppressHydrationWarning={true} onClick={() => logout({})} className={styles.navbar__option}>Logout</button>
+                <h3 className={styles.navbar__username}>{data!.me!.username}</h3>
+                <NextLink href="/create-post">
+                    <button className={styles.navbar__option}>Create Post</button>
+                </NextLink>
+                <button onClick={() => logout({})} className={styles.navbar__option}>Logout</button>
                 </>
             );
         }

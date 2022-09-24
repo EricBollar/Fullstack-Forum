@@ -15,6 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
 const Post_1 = require("../entities/Post");
 const type_graphql_1 = require("type-graphql");
+const isAuth_1 = require("../middleware/isAuth");
+let PostOptions = class PostOptions {
+};
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], PostOptions.prototype, "title", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], PostOptions.prototype, "text", void 0);
+PostOptions = __decorate([
+    (0, type_graphql_1.InputType)()
+], PostOptions);
 let PostResolver = class PostResolver {
     posts() {
         return Post_1.Post.find();
@@ -22,8 +36,11 @@ let PostResolver = class PostResolver {
     post(id) {
         return Post_1.Post.findOne({ where: { id: id } });
     }
-    async createPost(title) {
-        return Post_1.Post.create({ title }).save();
+    async createPost(options, { req }) {
+        if (options.text === "" || options.title === "") {
+            throw new Error("Posts must have a title and text!");
+        }
+        return Post_1.Post.create(Object.assign(Object.assign({}, options), { creatorId: req.session.userId })).save();
     }
     async updatePost(id, title) {
         const post = Post_1.Post.findOne({ where: { id: id } });
@@ -61,9 +78,11 @@ __decorate([
 ], PostResolver.prototype, "post", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Post_1.Post),
-    __param(0, (0, type_graphql_1.Arg)('title')),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)('options')),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [PostOptions, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 __decorate([

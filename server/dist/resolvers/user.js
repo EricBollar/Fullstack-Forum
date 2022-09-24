@@ -24,7 +24,6 @@ const types_1 = require("../utils/types");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
 const uuid_1 = require("uuid");
-const initializeORM_1 = require("../utils/initializeORM");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -91,7 +90,7 @@ let UserResolver = class UserResolver {
         const token = (0, uuid_1.v4)();
         const timeTillExpiration = 1000 * 60 * 60 * 24;
         await redis.set(constants_1.FORGET_PASSWORD_PREFIX + token, user.id, "EX", timeTillExpiration);
-        await (0, sendEmail_1.sendEmail)(email, `<a href="http://localhost:3000/changepassword/${token}">Click Here to Reset Your Password</a>`);
+        await (0, sendEmail_1.sendEmail)(email, `<a href="http://localhost:3000/change-password/${token}">Click Here to Reset Your Password</a>`);
         return true;
     }
     async me({ req }) {
@@ -108,12 +107,12 @@ let UserResolver = class UserResolver {
         const hashedPassword = await argon2_1.default.hash(options.password);
         let user;
         try {
-            const result = await initializeORM_1.DATASOURCE.getRepository(User_1.User).createQueryBuilder().insert().into(User_1.User).values({
+            const result = await User_1.User.create({
                 username: options.username,
                 password: hashedPassword,
                 email: options.email,
-            }).returning("*").execute();
-            user = result.raw;
+            }).save();
+            user = result;
         }
         catch (err) {
             console.log(err.message);
@@ -125,6 +124,14 @@ let UserResolver = class UserResolver {
                         }]
                 };
             }
+        }
+        if (!user) {
+            return {
+                errors: [{
+                        field: "User",
+                        message: "User not found. An Error occurred..."
+                    }]
+            };
         }
         req.session.userId = user.id;
         return { user };

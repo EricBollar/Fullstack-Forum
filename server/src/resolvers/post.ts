@@ -1,5 +1,15 @@
 import { Post } from "../entities/Post";
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware } from "type-graphql";
+import { MyContext } from "src/types";
+import { isAuth } from "../middleware/isAuth";
+
+@InputType()
+class PostOptions {
+    @Field()
+    title: string;
+    @Field()
+    text: string;
+}
 
 @Resolver()
 export class PostResolver {
@@ -19,10 +29,18 @@ export class PostResolver {
 
     // creates a new post
     @Mutation(() => Post)
+    @UseMiddleware(isAuth)
     async createPost(
-        @Arg('title') title: string
+        @Arg('options') options: PostOptions,
+        @Ctx() {req}: MyContext
     ): Promise<Post> {
-        return Post.create({title}).save();
+        if (options.text === "" || options.title === "") {
+            throw new Error("Posts must have a title and text!");
+        }
+        return Post.create({
+            ...options,
+            creatorId: req.session.userId
+        }).save();
     }
 
     // updates an existing post

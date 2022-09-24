@@ -4,6 +4,7 @@ import styles from '../styles/login.module.css'
 import Router from 'next/router'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
+import Navbar from '../components/navbar'
 
 interface loginProps {
 
@@ -32,11 +33,20 @@ const Login: React.FC<loginProps> = ({}) => {
             setUsernameOrEmail("");
             setPassword("");
             setErrorMessage("Success! Logging in...");
-            Router.push("/");
+
+            // reroute to either next (if sent here by say create-post)
+            if (typeof Router.query.next === "string") {
+                Router.push(Router.query.next);
+            // or home page by default
+            } else {
+                Router.push("/");
+            }
         }
 	}
 
     return(
+        <>
+        <Navbar />
         <div className={styles.login}>
             <form>
                 {/* Title */}
@@ -53,9 +63,10 @@ const Login: React.FC<loginProps> = ({}) => {
                 <button onClick={handleSubmit} type="submit">Login</button>
                 {/* Error Messages */}
                 <h3 className={styles.login__error}>{errorMessage}</h3>
-                <a href="/forgotpassword">Forgot Password?</a>
+                <a href="/forgot-password">Forgot Password?</a>
             </form>
         </div>
+        </>
     );
 }
 

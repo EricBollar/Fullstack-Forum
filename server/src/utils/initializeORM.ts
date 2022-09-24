@@ -9,7 +9,7 @@ export const DATASOURCE = new DataSource({
     username: 'postgres',
     password: 'postgres',
     logging: true,
-    // auto runs migrations, good for development
+    // synchronize auto runs migrations, good for development
     synchronize: true,
     entities: [Post, User]
 });

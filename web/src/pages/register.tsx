@@ -4,6 +4,7 @@ import styles from '../styles/register.module.css'
 import Router, { useRouter } from 'next/router'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
+import Navbar from '../components/navbar'
 
 interface registerProps {
 
@@ -39,6 +40,8 @@ const Register: React.FC<registerProps> = ({}) => {
 	}
 
     return(
+        <>
+        <Navbar />
         <div className={styles.register}>
             <form>
                 {/* Title */}
@@ -60,6 +63,7 @@ const Register: React.FC<registerProps> = ({}) => {
                 <h3 className={styles.register__error}>{errorMessage}</h3>
             </form>
         </div>
+        </>
     );
 }
 

@@ -7,7 +7,6 @@ import { UserLoginInput } from "../utils/types";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
-import { DATASOURCE } from "../utils/initializeORM";
 
 @ObjectType()
 class FieldError {
@@ -100,7 +99,7 @@ export class UserResolver {
 
         await sendEmail(
             email, 
-            `<a href="http://localhost:3000/changepassword/${token}">Click Here to Reset Your Password</a>`
+            `<a href="http://localhost:3000/change-password/${token}">Click Here to Reset Your Password</a>`
             );
 
         return true;
@@ -134,13 +133,23 @@ export class UserResolver {
         let user;
 
         try {
-            const result = await DATASOURCE.getRepository(User).createQueryBuilder().insert().into(User).values({
+            const result = await User.create({
                 username: options.username,
                 password: hashedPassword,
                 email: options.email,
                 // typeorm handles createdat and updatedat for us
-            }).returning("*").execute();
-            user = result.raw;
+            }).save();
+
+            // below is a more in-depth way but generated sequel is the same
+            // (used to be diff) but typeorm updated so the previous is just as viable
+            // const result = await DATASOURCE.getRepository(User).createQueryBuilder().insert().into(User).values({
+            //     username: options.username,
+            //     password: hashedPassword,
+            //     email: options.email,
+            //     // typeorm handles createdat and updatedat for us
+            // }).returning("*").execute();
+
+            user = result;
         } catch (err) {
             console.log(err.message);
 
@@ -152,6 +161,17 @@ export class UserResolver {
                         message: "That Username is already in use!"
                     }]
                 }
+            }
+        }
+
+        // recently created user is undefined... this should never run
+        // it's mainly to suck off typescript
+        if (!user) {
+            return {
+                errors: [{
+                    field: "User",
+                    message: "User not found. An Error occurred..."
+                }]
             }
         }
 
