@@ -1,53 +1,44 @@
 import { Post } from "../entities/Post";
-import { MyContext } from "src/types";
-import { Resolver, Query, Ctx, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
 
 @Resolver()
 export class PostResolver {
     // returns all posts
     @Query(() => [Post])
-    posts(
-        @Ctx() {em}: MyContext
-    ): Promise<Post[]> {
-        return em.fork({}).find(Post, {});
+    posts(): Promise<Post[]> {
+        return Post.find();
     }
 
     // returns one post or null given id
     @Query(() => Post, { nullable: true })
     post(
-        @Arg('id') id: number,
-        @Ctx() {em}: MyContext 
+        @Arg('id') id: number
     ): Promise<Post | null> {
-        return em.fork({}).findOne(Post, { id });
+        return Post.findOne({where: {id: id}});
     }
 
     // creates a new post
     @Mutation(() => Post)
     async createPost(
-        @Arg('title') title: string,
-        @Ctx() {em}: MyContext 
+        @Arg('title') title: string
     ): Promise<Post> {
-        const post = em.fork({}).create(Post, {title})
-        await em.fork({}).persistAndFlush(post)
-        return post;
+        return Post.create({title}).save();
     }
 
     // updates an existing post
     @Mutation(() => Post, { nullable: true })
     async updatePost(
         @Arg('id') id: number,
-        @Arg('title') title: string,
-        @Ctx() {em}: MyContext 
+        @Arg('title') title: string
     ): Promise<Post | null> {
         // first find post
-        const post = await em.fork({}).findOne(Post, {id});
+        const post = Post.findOne({where: {id: id}});
         if (!post) {
             return null;
         }
         // then update
         if (typeof title !== undefined) {
-            post.title = title;
-            await em.fork({}).persistAndFlush(post)
+            await Post.update({id}, {title});
         }
         return post;
     }
@@ -55,11 +46,10 @@ export class PostResolver {
     // deletes an existing post
     @Mutation(() => Boolean)
     async deletePost(
-        @Arg('id') id: number,
-        @Ctx() {em}: MyContext 
+        @Arg('id') id: number
     ): Promise<Boolean> {
         try {
-            await em.nativeDelete(Post, {id});
+            await Post.delete(id);
         } catch (err) {
             console.error("Error: ", err.message);
             return false;

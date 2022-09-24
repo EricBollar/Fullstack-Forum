@@ -24,6 +24,7 @@ const types_1 = require("../utils/types");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
 const uuid_1 = require("uuid");
+const initializeORM_1 = require("../utils/initializeORM");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -51,10 +52,10 @@ UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    async changePassword(token, newPassword, { em, req, redis }) {
+    async changePassword(token, newPassword, { req, redis }) {
         const key = constants_1.FORGET_PASSWORD_PREFIX + token;
-        const userId = await redis.get(key);
-        if (!userId) {
+        const stringId = await redis.get(key);
+        if (!stringId) {
             return {
                 errors: [
                     {
@@ -64,15 +65,26 @@ let UserResolver = class UserResolver {
                 ]
             };
         }
-        const user = em.fork({}).findOne(User_1.User, { id: userId });
-        user.password = await argon2_1.default.hash(newPassword);
-        await em.fork({}).persistAndFlush(user);
+        const userId = parseInt(stringId);
+        const user = await User_1.User.findOne({ where: { id: userId } });
+        if (!user) {
+            return {
+                errors: [
+                    {
+                        field: "user",
+                        message: "Token invalid."
+                    }
+                ]
+            };
+        }
+        const newHashedPassword = await argon2_1.default.hash(newPassword);
+        await User_1.User.update({ id: userId }, { password: newHashedPassword });
         redis.del(key);
         req.session.userId = user.id;
         return { user };
     }
-    async forgotPassword(email, { em, redis }) {
-        const user = await em.fork({}).findOne(User_1.User, { email });
+    async forgotPassword(email, { redis }) {
+        const user = await User_1.User.findOne({ where: { email: email } });
         if (!user) {
             return true;
         }
@@ -82,14 +94,13 @@ let UserResolver = class UserResolver {
         await (0, sendEmail_1.sendEmail)(email, `<a href="http://localhost:3000/changepassword/${token}">Click Here to Reset Your Password</a>`);
         return true;
     }
-    async me({ em, req }) {
+    async me({ req }) {
         if (!req.session.userId) {
             return null;
         }
-        const user = await em.fork({}).findOne(User_1.User, { id: req.session.userId });
-        return user;
+        return await User_1.User.findOne({ where: { id: req.session.userId } });
     }
-    async register(options, { em }) {
+    async register(options, { req }) {
         const response = (0, validateRegister_1.validateRegister)(options);
         if (response) {
             return { errors: response };
@@ -97,15 +108,12 @@ let UserResolver = class UserResolver {
         const hashedPassword = await argon2_1.default.hash(options.password);
         let user;
         try {
-            const result = await em.fork({}).createQueryBuilder(User_1.User).getKnexQuery()
-                .insert({
+            const result = await initializeORM_1.DATASOURCE.getRepository(User_1.User).createQueryBuilder().insert().into(User_1.User).values({
                 username: options.username,
                 password: hashedPassword,
                 email: options.email,
-                created_at: new Date(),
-                updated_at: new Date()
-            }).returning('*');
-            user = result[0];
+            }).returning("*").execute();
+            user = result.raw;
         }
         catch (err) {
             console.log(err.message);
@@ -118,11 +126,13 @@ let UserResolver = class UserResolver {
                 };
             }
         }
+        req.session.userId = user.id;
         return { user };
     }
-    async login(usernameOrEmail, password, { em, req }) {
-        const user = await em.fork({}).findOne(User_1.User, usernameOrEmail.includes("@") ? { email: usernameOrEmail }
-            : { username: usernameOrEmail });
+    async login(usernameOrEmail, password, { req }) {
+        const user = await User_1.User.findOne(usernameOrEmail.includes("@")
+            ? { where: { email: usernameOrEmail } }
+            : { where: { username: usernameOrEmail } });
         if (!user) {
             return {
                 errors: [{

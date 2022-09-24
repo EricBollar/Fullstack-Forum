@@ -2,12 +2,12 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Query, ObjectType, Resolver, Mutation, Field, Arg, Ctx } from "type-graphql";
 import argon2 from "argon2";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UserLoginInput } from "../utils/types";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
+import { DATASOURCE } from "../utils/initializeORM";
 
 @ObjectType()
 class FieldError {
@@ -33,14 +33,14 @@ export class UserResolver {
     async changePassword(
         @Arg("token") token: string,
         @Arg("newPassword") newPassword: string,
-        @Ctx() {em, req, redis}: MyContext
+        @Ctx() {req, redis}: MyContext
     ): Promise<UserResponse> {
         // should do password validity checks here but i am lazy
 
         const key = FORGET_PASSWORD_PREFIX + token;
 
-        const userId = await redis.get(key);
-        if (!userId) {
+        const stringId = await redis.get(key);
+        if (!stringId) {
             return {
                 errors: [
                     {
@@ -51,12 +51,23 @@ export class UserResolver {
             }
         }
 
-        const user = em.fork({}).findOne(User, {id: userId});
+        const userId = parseInt(stringId);
+        const user = await User.findOne({where: {id: userId}});
 
-        // throw error if not user?
+        // throw error if no user found.
+        if (!user) {
+            return {
+                errors: [
+                    {
+                        field: "user",
+                        message: "Token invalid."
+                    }
+                ]
+            }
+        }
 
-        user.password = await argon2.hash(newPassword);
-        await em.fork({}).persistAndFlush(user);
+        const newHashedPassword = await argon2.hash(newPassword);
+        await User.update({id: userId}, {password: newHashedPassword});
         redis.del(key);
 
         // log in after password reset
@@ -69,9 +80,9 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg('email') email: string,
-        @Ctx() {em, redis} : MyContext,
+        @Ctx() {redis} : MyContext,
     ) {
-        const user = await em.fork({}).findOne(User, {email});
+        const user = await User.findOne({where: {email: email}});
         if (!user) {
             // email is not in db
             return true; // don't want them to guess user's emails
@@ -97,22 +108,21 @@ export class UserResolver {
 
     @Query(() => User, {nullable: true})
     async me (
-        @Ctx() { em, req }: MyContext
+        @Ctx() { req }: MyContext
     ): Promise<User | null> {
         // not logged in
         if (!req.session.userId) {
             return null;
         }
 
-        const user = await em.fork({}).findOne(User, {id: req.session.userId});
-        return user;
+        return await User.findOne({where: {id: req.session.userId}});
     }
 
     // registers a new user
     @Mutation(() => UserResponse)
     async register(
         @Arg('options') options: UserLoginInput,
-        @Ctx() {em}: MyContext
+        @Ctx() { req }: MyContext
     ): Promise<UserResponse> {
         const response = validateRegister(options);
         if (response) {
@@ -124,20 +134,13 @@ export class UserResolver {
         let user;
 
         try {
-             const result = await (em as EntityManager).fork({}).createQueryBuilder(User).getKnexQuery()
-                .insert(
-                    {
-                        username: options.username, // currently case sensitive
-                        password: hashedPassword,
-                        email: options.email,
-
-                        // need underscores because that is name of column in db
-                        // Knex does not know that mikro-orm adds them so we must add
-                        created_at: new Date(),
-                        updated_at: new Date()
-                    }
-                ).returning('*');
-            user = result[0];
+            const result = await DATASOURCE.getRepository(User).createQueryBuilder().insert().into(User).values({
+                username: options.username,
+                password: hashedPassword,
+                email: options.email,
+                // typeorm handles createdat and updatedat for us
+            }).returning("*").execute();
+            user = result.raw;
         } catch (err) {
             console.log(err.message);
 
@@ -152,6 +155,9 @@ export class UserResolver {
             }
         }
 
+        // login after successful register
+        req.session.userId = user.id;
+
         return {user};
     }
 
@@ -160,12 +166,12 @@ export class UserResolver {
     async login(
         @Arg('usernameOrEmail') usernameOrEmail: string,
         @Arg('password') password: string,
-        @Ctx() {em, req}: MyContext
+        @Ctx() {req}: MyContext
     ): Promise<UserResponse> {
-        const user = await em.fork({}).findOne(
-            User, 
-            usernameOrEmail.includes("@") ? { email: usernameOrEmail }
-            : { username: usernameOrEmail }
+        const user = await User.findOne(
+            usernameOrEmail.includes("@") 
+            ? { where: { email: usernameOrEmail } }
+            : { where: { username: usernameOrEmail} }
             );
         
         // does username exist
