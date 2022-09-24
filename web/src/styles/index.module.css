@@ -2,3 +2,10 @@
   margin-top: 15px;
   text-align: center;
 }
+
+.index__button {
+  display: flex;
+  margin: auto;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
