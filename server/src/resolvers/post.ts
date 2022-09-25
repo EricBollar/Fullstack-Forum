@@ -4,6 +4,7 @@ import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { DATASOURCE } from "../utils/initializeORM";
 import { Vote } from "../entities/Vote";
+import { User } from "src/entities/User";
 
 @InputType()
 class PostOptions {
@@ -28,6 +29,24 @@ export class PostResolver {
         @Root() root: Post
     ): String {
         return root.text.slice(0, 200);
+    }
+
+    @FieldResolver(() => User)
+    creator(
+        @Root() post: Post,
+        @Ctx() {userLoader}: MyContext
+    ) {
+        return userLoader.load(post.creatorId);
+    }
+
+    @FieldResolver(() => Int, {nullable: true})
+    @UseMiddleware(isAuth)
+    async voteStatus(
+        @Root() post: Post,
+        @Ctx() {req, voteLoader}: MyContext
+    ) {
+        const vote = await voteLoader.load({postId: post.id, userId: req.session.userId as number})
+        return (vote ? vote.value : null);
     }
 
     @Mutation(() => Boolean)
@@ -108,29 +127,15 @@ export class PostResolver {
         const realLimit = Math.min(50, limit);
 
         const replacements: any[] = [realLimit + 1];
-        if (req.session.userId) {
-            replacements.push(req.session.userId);
-        }
-        let cursorIndex = 3;
         if (cursor) {
             replacements.push(new Date(parseInt(cursor)));
-            cursorIndex = replacements.length;
         }
 
         // replacements indices start at 1 not 0 for sql
         const posts = await DATASOURCE.query(`
             select p.*,
-            json_build_object(
-                'id', u.id,
-                'username', u.username,
-                'email', u.email
-                ) creator
-            ${req.session.userId 
-                ? ',(select value from vote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-                : ',null as "voteStatus"'}
             from post p
-            inner join "user" u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt" < $${cursorIndex}` : ''}
+            ${cursor ? `where p."createdAt" < $2` : ''}
             order by p."createdAt" DESC
             limit $1
         `, replacements);
@@ -149,24 +154,12 @@ export class PostResolver {
     ): Promise<Post | null> {
         // return Post.findOne({where: {id: id}});
 
-        const replacements: any[] = [id];
-        if (req.session.userId) {
-            replacements.push(req.session.userId);
-        }
+        const replacements: any[] = [id]; 
 
         // replacements indices start at 1 not 0 for sql
         const post = await DATASOURCE.query(`
             select p.*,
-            json_build_object(
-                'id', u.id,
-                'username', u.username,
-                'email', u.email
-                ) creator
-            ${req.session.userId 
-                ? ',(select value from vote where "userId" = $2 and "postId" = $1) "voteStatus"'
-                : ',null as "voteStatus"'}
             from post p
-            inner join "user" u on u.id = p."creatorId"
             where p.id = $1
             limit 1
         `, replacements);

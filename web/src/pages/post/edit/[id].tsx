@@ -40,7 +40,8 @@ const EditPost: React.FC<{}> = () => {
         const {error} = await update({id: post.id, title: title as string, text: text as string});
 
         if (!error) {
-            router.push(`/post/${post.id}`);
+            router.back();
+            //router.push(`/post/${post.id}`);
         } else {
             // substring since all errors start with "[GraphQL] "
             setErrorMessage(error.message.substring(9));
@@ -53,7 +54,7 @@ const EditPost: React.FC<{}> = () => {
         <div className={styles.editpost}>
             <form>
                 {/* Title */}
-                <h2 className={styles.editpost__title}>Create Post</h2>
+                <h2 className={styles.editpost__title}>Edit Post #{post.id}</h2>
     
                 {/* Post Title Input */}
                 <h3 className={styles.editpost__inputeHeader}>Title</h3>

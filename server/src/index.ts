@@ -11,6 +11,7 @@ import session from "express-session"
 import { MyContext } from "./types";
 import cors from "cors"
 import { DATASOURCE } from "./utils/initializeORM";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
     await DATASOURCE.initialize();
@@ -79,7 +80,13 @@ const main = async () => {
         }),
 
         // unique object that is accessible to all resolvers
-        context: ({req, res}): MyContext => ({ req, res, redis })
+        context: ({req, res}): MyContext => ({ 
+            req, 
+            res, 
+            redis, 
+            userLoader: createUserLoader(),
+            voteLoader: createVoteLoader()
+         })
     });
     await apolloServer.start();
 
