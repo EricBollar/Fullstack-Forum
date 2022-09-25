@@ -186,15 +186,24 @@ export class PostResolver {
 
     // deletes an existing post
     @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
     async deletePost(
-        @Arg('id') id: number
+        @Arg('id', () => Int) id: number,
+        @Ctx() {req}: MyContext
     ): Promise<Boolean> {
         try {
-            await Post.delete(id);
+            const post = await Post.findOne({where: {id: id}});
+            if (post) {
+                if (post.creatorId === req.session.userId) {
+                    await Vote.delete({postId: post.id});
+                    await Post.delete(post.id);
+                    return true;
+                }
+            }
+            return false;
         } catch (err) {
             console.error("Error: ", err.message);
             return false;
         }
-        return true;
     }
 }

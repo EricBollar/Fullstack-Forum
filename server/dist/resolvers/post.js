@@ -161,15 +161,22 @@ let PostResolver = class PostResolver {
         }
         return post;
     }
-    async deletePost(id) {
+    async deletePost(id, { req }) {
         try {
-            await Post_1.Post.delete(id);
+            const post = await Post_1.Post.findOne({ where: { id: id } });
+            if (post) {
+                if (post.creatorId === req.session.userId) {
+                    await Vote_1.Vote.delete({ postId: post.id });
+                    await Post_1.Post.delete(post.id);
+                    return true;
+                }
+            }
+            return false;
         }
         catch (err) {
             console.error("Error: ", err.message);
             return false;
         }
-        return true;
     }
 };
 __decorate([
@@ -223,9 +230,11 @@ __decorate([
 ], PostResolver.prototype, "updatePost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
-    __param(0, (0, type_graphql_1.Arg)('id')),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([

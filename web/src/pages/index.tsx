@@ -42,10 +42,12 @@ const Index = () => {
       {!data || data.posts?.posts === undefined
         ? <div>Loading posts...</div> 
         : data.posts.posts.map((p) => 
-          <Post 
-            post = {p}
-            username = {p.creator.username}
-            />
+          !p
+          ? null // when deleting post, cache invalidation makes post = null
+          : <Post 
+              post = {p}
+              creatorUsername = {p.creator.username}
+              />
       )}
       {data && data.posts.hasMore
         ? <button className={styles.index__button} onClick={loadMore}>Load More</button>
