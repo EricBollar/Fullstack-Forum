@@ -16,7 +16,10 @@ const DeletePost: React.FC<deletePostProps> = ({postId, creatorUsername}) => {
     }
 
     const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>) => {
-        deletePost({id: postId});
+        if (!confirm("Are you sure you want to delete this post?")) {
+            return;
+        }
+        await deletePost({id: postId});
     }
 
     let deleteButton = (

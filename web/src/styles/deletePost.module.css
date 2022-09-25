@@ -3,3 +3,7 @@
     margin-right: 5px;
     margin-top: 5px;
 }
+
+.deletePost:hover {
+    cursor: pointer;
+}

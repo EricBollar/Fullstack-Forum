@@ -144,10 +144,35 @@ export class PostResolver {
 
     // returns one post or null given id
     @Query(() => Post, { nullable: true })
-    post(
-        @Arg('id', () => Int) id: number
+    async post(
+        @Arg('id', () => Int) id: number,
+        @Ctx() {req}: MyContext
     ): Promise<Post | null> {
-        return Post.findOne({where: {id: id}, relations: ["creator"]});
+        // return Post.findOne({where: {id: id}});
+
+        const replacements: any[] = [id];
+        if (req.session.userId) {
+            replacements.push(req.session.userId);
+        }
+
+        // replacements indices start at 1 not 0 for sql
+        const post = await DATASOURCE.query(`
+            select p.*,
+            json_build_object(
+                'id', u.id,
+                'username', u.username,
+                'email', u.email
+                ) creator
+            ${req.session.userId 
+                ? ',(select value from vote where "userId" = $2 and "postId" = $1) "voteStatus"'
+                : ',null as "voteStatus"'}
+            from post p
+            inner join "user" u on u.id = p."creatorId"
+            where p.id = $1
+            limit 1
+        `, replacements);
+
+        return post[0];
     }
 
     // creates a new post

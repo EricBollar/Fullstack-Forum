@@ -5,6 +5,7 @@ import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import styles from "../../styles/postpage.module.css";
 import Voting from "../../components/voting";
+import DeletePost from "../../components/deletePost";
 
 interface postPageProps {
     
@@ -59,6 +60,10 @@ const PostPage: React.FC<postPageProps> = ({}) => {
                         <br/>
                     </div>
                 </div>
+                <DeletePost
+                    postId={post.id}
+                    creatorUsername={post.creator.username}
+                    />
                 <Voting 
                     postId={post.id} 
                     points={post.points} 

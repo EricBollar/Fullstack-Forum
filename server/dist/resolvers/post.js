@@ -142,8 +142,27 @@ let PostResolver = class PostResolver {
             hasMore: posts.length === realLimit + 1
         };
     }
-    post(id) {
-        return Post_1.Post.findOne({ where: { id: id }, relations: ["creator"] });
+    async post(id, { req }) {
+        const replacements = [id];
+        if (req.session.userId) {
+            replacements.push(req.session.userId);
+        }
+        const post = await initializeORM_1.DATASOURCE.query(`
+            select p.*,
+            json_build_object(
+                'id', u.id,
+                'username', u.username,
+                'email', u.email
+                ) creator
+            ${req.session.userId
+            ? ',(select value from vote where "userId" = $2 and "postId" = $1) "voteStatus"'
+            : ',null as "voteStatus"'}
+            from post p
+            inner join "user" u on u.id = p."creatorId"
+            where p.id = $1
+            limit 1
+        `, replacements);
+        return post[0];
     }
     async createPost(options, { req }) {
         if (options.text === "" || options.title === "") {
@@ -207,8 +226,9 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Query)(() => Post_1.Post, { nullable: true }),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
 __decorate([
