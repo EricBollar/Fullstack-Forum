@@ -49,25 +49,5 @@
 }
 
 .post__voting {
-    margin-top: 5px;
     margin-right: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.post__upvote {
-    color: black;
-}
-
-.post__upvote_active {
-    color:blue;
-}
-
-.post__downvote {
-    color: black;
-}
-
-.post__downvote_active {
-    color:blue;
 }

@@ -1,0 +1,23 @@
+.voting {
+    margin-top: 5px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.voting__upvote {
+    color: black;
+}
+
+.voting__upvote_active {
+    color:blue;
+}
+
+.voting__downvote {
+    color: black;
+}
+
+.voting__downvote_active {
+    color:blue;
+}

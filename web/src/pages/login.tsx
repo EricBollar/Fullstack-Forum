@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useLoginMutation } from '../generated/graphql'
 import styles from '../styles/login.module.css'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
 import Navbar from '../components/navbar'
@@ -11,6 +11,7 @@ interface loginProps {
 }
 
 const Login: React.FC<loginProps> = ({}) => {
+    const router = useRouter();
     const [,login] = useLoginMutation();
     const [usernameOrEmail, setUsernameOrEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -35,11 +36,11 @@ const Login: React.FC<loginProps> = ({}) => {
             setErrorMessage("Success! Logging in...");
 
             // reroute to either next (if sent here by say create-post)
-            if (typeof Router.query.next === "string") {
-                Router.push(Router.query.next);
+            if (typeof router.query.next === "string") {
+                router.push(router.query.next);
             // or home page by default
             } else {
-                Router.push("/");
+                router.push("/");
             }
         }
 	}

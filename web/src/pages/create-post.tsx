@@ -1,6 +1,6 @@
 import { withUrqlClient } from "next-urql";
-import Router from "next/router";
-import React, { useEffect, useState } from "react"
+import { useRouter } from "next/router";
+import React, { useState } from "react"
 import Navbar from "../components/navbar";
 import { useCreatePostMutation, useMeQuery } from "../generated/graphql";
 import styles from "../styles/create-post.module.css"
@@ -15,6 +15,7 @@ const CreatePost: React.FC<{}> = () => {
     // check logged in
     useIsAuth();
 
+    const router = useRouter();
     const [,createPost] = useCreatePostMutation();
     const [title, setTitle] = useState("");
 	const [text, setText] = useState("");
@@ -26,7 +27,7 @@ const CreatePost: React.FC<{}> = () => {
         const {error} = await createPost({options: {title: title, text: text}});
 
         if (!error) {
-            Router.push("/");
+            router.push("/");
         } else {
             // substring since all errors start with "[GraphQL] "
             setErrorMessage(error.message.substring(9));

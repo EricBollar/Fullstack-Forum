@@ -14,7 +14,6 @@ import { createUrqlClient } from '../utils/createUrqlClient'
 import dynamic from 'next/dynamic'
 import Post from '../components/post'
 import { useState } from 'react'
-import loadCustomRoutes from 'next/dist/lib/load-custom-routes'
 const Navbar = dynamic(() => import("../components/navbar"), { ssr: false })
 
 const Index = () => {

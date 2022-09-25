@@ -31,7 +31,6 @@ export class PostResolver {
     }
 
     @Mutation(() => Boolean)
-    @UseMiddleware(isAuth)
     async vote (
         @Arg("value", () => Int) value: number,
         @Arg("postId", () => Int) postId: number,
@@ -42,9 +41,29 @@ export class PostResolver {
         }
         const userId = req.session.userId;
 
+        if (!userId) {
+            throw new Error("not authenticated");
+        }
+
         const vote = await Vote.findOne({where: {postId, userId}});
         if (vote) {
-            if (vote.value !== value) {
+            if (value === 0) {
+                const prevValue = vote.value;
+                console.log(prevValue);
+                await DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        delete from vote
+                        where "postId" = $1 and "userId" = $2
+                    `, [postId, userId])
+                });
+                await DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        update post
+                        set points = points - $1
+                        where id = $2
+                    `, [prevValue, postId])
+                });
+            } else if (vote.value !== value) {
                 await DATASOURCE.transaction(async (tm) => {
                     await tm.query(`
                         update vote

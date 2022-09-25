@@ -53,9 +53,29 @@ let PostResolver = class PostResolver {
             return false;
         }
         const userId = req.session.userId;
+        if (!userId) {
+            throw new Error("not authenticated");
+        }
         const vote = await Vote_1.Vote.findOne({ where: { postId, userId } });
         if (vote) {
-            if (vote.value !== value) {
+            if (value === 0) {
+                const prevValue = vote.value;
+                console.log(prevValue);
+                await initializeORM_1.DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        delete from vote
+                        where "postId" = $1 and "userId" = $2
+                    `, [postId, userId]);
+                });
+                await initializeORM_1.DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        update post
+                        set points = points - $1
+                        where id = $2
+                    `, [prevValue, postId]);
+                });
+            }
+            else if (vote.value !== value) {
                 await initializeORM_1.DATASOURCE.transaction(async (tm) => {
                     await tm.query(`
                         update vote
@@ -161,7 +181,6 @@ __decorate([
 ], PostResolver.prototype, "textSnippet", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
-    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)("value", () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)("postId", () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),

@@ -1,18 +1,18 @@
 import { withUrqlClient } from "next-urql";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import Navbar from "../../components/navbar";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import styles from "../../styles/postpage.module.css";
-import { useEffect } from "react";
+import Voting from "../../components/voting";
 
 interface postPageProps {
     
 }
 
 const PostPage: React.FC<postPageProps> = ({}) => {
-    // must use useRouter(), should probably clean up in future
-    const intId = typeof useRouter().query.id === "string" ? parseInt(useRouter().query.id as string) : -1;
+    const router = useRouter();
+    const intId = typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
     const [{data, fetching}] = usePostQuery({
         pause: intId === -1,
         variables: {
@@ -59,12 +59,11 @@ const PostPage: React.FC<postPageProps> = ({}) => {
                         <br/>
                     </div>
                 </div>
-                <div className={styles.postpage__voting}>
-                    {/* Not sure how to use "post__upvote--active" here... using upvote_active as temporary substitute */}
-                    {/* <button className={post.voteStatus === 1 ? styles.post__upvote_active : styles.post__upvote} onClick={upVote}>⬆</button>
-                    <p>{post.points}</p>
-                    <button className={post.voteStatus === -1 ? styles.post__downvote_active : styles.post__downvote} onClick={downVote}>⬇</button> */}
-                </div>
+                <Voting 
+                    postId={post.id} 
+                    points={post.points} 
+                    voteStatus={post.voteStatus as number | undefined}
+                    />
             </div>
             <br/>
 		</div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRegisterMutation } from '../generated/graphql'
 import styles from '../styles/register.module.css'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
 import Navbar from '../components/navbar'
@@ -11,6 +11,7 @@ interface registerProps {
 }
 
 const Register: React.FC<registerProps> = ({}) => {
+    const router = useRouter();
     const [,register] = useRegisterMutation();
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ const Register: React.FC<registerProps> = ({}) => {
             setUsername("");
             setPassword("");
             setErrorMessage("Success! Logging in...");
-            Router.push("/");
+            router.push("/");
         }
 	}
 

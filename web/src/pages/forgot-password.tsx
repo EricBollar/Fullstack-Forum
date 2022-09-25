@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useForgotPasswordMutation, useLoginMutation } from '../generated/graphql'
+import { useForgotPasswordMutation } from '../generated/graphql'
 import styles from '../styles/login.module.css'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'

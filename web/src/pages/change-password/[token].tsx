@@ -2,11 +2,12 @@ import { NextPage } from "next";
 import React, { useState } from "react"
 import styles from '../../styles/change-password.module.css'
 import { useChangePasswordMutation } from "../../generated/graphql";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 
 const ChangePassword: NextPage = () => {
+    const router = useRouter();
     const [,changePassword] = useChangePasswordMutation();
     const [passwordA, setPasswordA] = useState("");
 	const [passwordB, setPasswordB] = useState("");
@@ -22,7 +23,7 @@ const ChangePassword: NextPage = () => {
         }
 
 		const response = await changePassword({
-            token: typeof Router.query.token === "string" ? Router.query.token : "", 
+            token: typeof router.query.token === "string" ? router.query.token : "", 
             newPassword: passwordA
         });
 
@@ -34,7 +35,7 @@ const ChangePassword: NextPage = () => {
         // no errors
         } else {
             setErrorMessage("Success! Password has been successfully changed.");
-            Router.push("/");
+            router.push("/");
         }
 	}
 
