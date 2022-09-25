@@ -110,7 +110,7 @@ let PostResolver = class PostResolver {
                 ) creator
             ${req.session.userId
             ? ',(select value from vote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-            : 'null as "voteStatus"'}
+            : ',null as "voteStatus"'}
             from post p
             inner join "user" u on u.id = p."creatorId"
             ${cursor ? `where p."createdAt" < $${cursorIndex}` : ''}
@@ -123,7 +123,7 @@ let PostResolver = class PostResolver {
         };
     }
     post(id) {
-        return Post_1.Post.findOne({ where: { id: id } });
+        return Post_1.Post.findOne({ where: { id: id }, relations: ["creator"] });
     }
     async createPost(options, { req }) {
         if (options.text === "" || options.title === "") {
@@ -180,7 +180,7 @@ __decorate([
 ], PostResolver.prototype, "posts", null);
 __decorate([
     (0, type_graphql_1.Query)(() => Post_1.Post, { nullable: true }),
-    __param(0, (0, type_graphql_1.Arg)('id')),
+    __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)

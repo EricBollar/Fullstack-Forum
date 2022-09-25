@@ -109,7 +109,7 @@ export class PostResolver {
                 ) creator
             ${req.session.userId 
                 ? ',(select value from vote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-                : 'null as "voteStatus"'}
+                : ',null as "voteStatus"'}
             from post p
             inner join "user" u on u.id = p."creatorId"
             ${cursor ? `where p."createdAt" < $${cursorIndex}` : ''}
@@ -126,9 +126,9 @@ export class PostResolver {
     // returns one post or null given id
     @Query(() => Post, { nullable: true })
     post(
-        @Arg('id') id: number
+        @Arg('id', () => Int) id: number
     ): Promise<Post | null> {
-        return Post.findOne({where: {id: id}});
+        return Post.findOne({where: {id: id}, relations: ["creator"]});
     }
 
     // creates a new post

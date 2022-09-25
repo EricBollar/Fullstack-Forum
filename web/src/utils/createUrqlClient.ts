@@ -60,8 +60,8 @@ function betterUpdateQuery<Result, Query> (
   }
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
-    let cookie = '';
-    if (isServer()) {
+    let cookie = null;
+    if (isServer() && ctx?.req) {
         cookie = ctx.req.headers.cookie;
     }
     
@@ -88,32 +88,34 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 // should probably destructure the following code in future...
 
                 vote: (result, args, cache, info) => {
-                    const {postId, value} = args as VoteMutationVariables;
-                    const data = cache.readFragment(
-                        gql`
-                            fragment _idPointsVoteStatus on Post {
-                                id
-                                points
-                                voteStatus
-                            }
-                        `,
-                        { id: postId } as any
-                    );
-                    if (data) {
-                        if (data.voteStatus === value) {
-                            return;
-                        }
-                        const newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
-                        cache.writeFragment(
-                            gql`
-                                fragment _points on Post {
-                                    points
-                                    voteStatus
-                                }
-                            `,
-                            {id: postId, points: newPoints, voteStatus: value} as any
-                        );
-                    }        
+                    // const {postId, value} = args as VoteMutationVariables;
+                    // const data = cache.readFragment(
+                    //     gql`
+                    //         fragment _idPointsVoteStatus on Post {
+                    //             id
+                    //             points
+                    //             voteStatus
+                    //         }
+                    //     `,
+                    //     { id: postId } as any
+                    // );
+                    // if (data) {
+                    //     if (data.voteStatus === value) {
+                    //         return;
+                    //     }
+                    //     const newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
+                    //     cache.writeFragment(
+                    //         gql`
+                    //             fragment _points on Post {
+                    //                 points
+                    //                 voteStatus
+                    //             }
+                    //         `,
+                    //         {id: postId, points: newPoints, voteStatus: value} as any
+                    //     );
+                    // }   
+                    
+                    cache.invalidate("Query");     
                 },
 
                 createPost: (result, args, cache, info) => {
@@ -124,12 +126,13 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
 
                 // update MeQuery to null for successful logout
                 logout: (result, args, cache, info) => {
-                betterUpdateQuery<LogoutMutation, MeQuery>(
-                    cache,
-                    {query: MeDocument},
-                    result,
-                    () => ({ me: null })
-                );
+                    cache.invalidate("Query");   
+                    betterUpdateQuery<LogoutMutation, MeQuery>(
+                        cache,
+                        {query: MeDocument},
+                        result,
+                        () => ({ me: null })
+                    );
                 },
 
                 // update MeQuery upon new successful LoginMutation
@@ -144,11 +147,12 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                         return query
                     // successful login -> update MeQuery (qid cookie)
                     } else {
+                        cache.invalidate("Query");   
                         return {
                         me: loginResult.login.user
                         }
                     }
-                    });
+                    }); 
                 },
 
                 // update MeQuery upon new successful RegisterMutation
@@ -163,6 +167,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                         return query
                     // successful register -> update MeQuery (qid cookie)
                     } else {
+                        cache.invalidate("Query");   
                         return {
                         me: registerResult.register.user
                         }

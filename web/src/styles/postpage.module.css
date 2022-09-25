@@ -1,31 +1,31 @@
-.post {
-	width: 50%;
+.postpage__background {
+    margin: 0;
+    position: sticky;
+    background-color: darkkhaki;
+    height: 100vh;
+}
+
+.postpage {
+	width: 80%;
     margin: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
 	border-radius: 15px;
 	background-color:aliceblue;
 	box-shadow: 0px 5px 7px -7px rgba(0, 0, 0, 0.75);
     display: flex;
 }
 
-.post__content {
+.postpage__content {
     width: 100%;
 }
 
-.post:hover {
-    cursor: pointer;
-    background-color: cadetblue;
-}
-
-.post__top {
+.postpage__top {
     margin-left: 15px;
 	display: flex;
 	position: relative;
 	align-items: center;
 }
 
-.post__topInfo {
+.postpage__topInfo {
     margin-top: 5px;
     margin-bottom: 5px;
     display: flex;
@@ -33,22 +33,22 @@
     margin-left: 15px;
 }
 
-.post__topInfo > h3 {
-	font-size: medium;
+.postpage__topInfo > h2 {
+	font-size: large;
     color: blue;
 }
 
-.post__topInfo > p {
-	font-size: small;
+.postpage__topInfo > h3 {
+	font-size: medium;
 	color: navy;
 }
 
-.post__bottom {
+.postpage__bottom {
     margin-left: 15px;
     margin-right: 15px;
 }
 
-.post__voting {
+.postpage_voting {
     margin-top: 5px;
     margin-right: 15px;
     display: flex;
@@ -56,18 +56,18 @@
     align-items: center;
 }
 
-.post__upvote {
+.postpage__upvote {
     color: black;
 }
 
-.post__upvote_active {
+.postpage__upvote_active {
     color:blue;
 }
 
-.post__downvote {
+.postpage__downvote {
     color: black;
 }
 
-.post__downvote_active {
+.postpage__downvote_active {
     color:blue;
 }

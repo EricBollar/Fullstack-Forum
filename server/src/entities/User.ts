@@ -25,8 +25,8 @@ export class User extends BaseEntity {
     @OneToMany(() => Post, post => post.creator)
     posts: Post[];
 
-    // @OneToMany(() => Vote, vote => vote.user)
-    // votes: Vote[];
+    @OneToMany(() => Vote, vote => vote.user)
+    votes: Vote[];
 
     @Field(() => String)
     @CreateDateColumn()
