@@ -6,21 +6,16 @@ import { createUrqlClient } from "../../utils/createUrqlClient";
 import styles from "../../styles/postpage.module.css";
 import Voting from "../../components/voting";
 import DeletePost from "../../components/deletePost";
+import { getPostFromUrl } from "../../utils/getPostFromUrl";
+import EditPostButton from "../../components/editPostButton";
 
 interface postPageProps {
     
 }
 
 const PostPage: React.FC<postPageProps> = ({}) => {
-    const router = useRouter();
-    const intId = typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-    const [{data, fetching}] = usePostQuery({
-        pause: intId === -1,
-        variables: {
-            id: intId
-        }
-    });
-    const post = data?.post;
+    const [{data, error, fetching}] = getPostFromUrl();
+    const post = data?.post
 
     // loading data
     if (fetching) {
@@ -60,6 +55,11 @@ const PostPage: React.FC<postPageProps> = ({}) => {
                         <br/>
                     </div>
                 </div>
+                <EditPostButton
+                    route="../"
+                    postId={post.id}
+                    creatorUsername={post.creator.username}
+                    />
                 <DeletePost
                     postId={post.id}
                     creatorUsername={post.creator.username}

@@ -60,7 +60,6 @@ let PostResolver = class PostResolver {
         if (vote) {
             if (value === 0) {
                 const prevValue = vote.value;
-                console.log(prevValue);
                 await initializeORM_1.DATASOURCE.transaction(async (tm) => {
                     await tm.query(`
                         delete from vote
@@ -170,15 +169,16 @@ let PostResolver = class PostResolver {
         }
         return Post_1.Post.create(Object.assign(Object.assign({}, options), { creatorId: req.session.userId })).save();
     }
-    async updatePost(id, title) {
-        const post = Post_1.Post.findOne({ where: { id: id } });
-        if (!post) {
-            return null;
-        }
-        if (typeof title !== undefined) {
-            await Post_1.Post.update({ id }, { title });
-        }
-        return post;
+    async updatePost(id, title, text, { req }) {
+        const result = await initializeORM_1.DATASOURCE.createQueryBuilder()
+            .update(Post_1.Post)
+            .set({ title: title, text: text })
+            .where('id = :id and "creatorId" = :creatorId', {
+            id: id, creatorId: req.session.userId
+        })
+            .returning('*')
+            .execute();
+        return result.raw[0];
     }
     async deletePost(id, { req }) {
         try {
@@ -242,10 +242,13 @@ __decorate([
 ], PostResolver.prototype, "createPost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
-    __param(0, (0, type_graphql_1.Arg)('id')),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
+    __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('title')),
+    __param(2, (0, type_graphql_1.Arg)('text')),
+    __param(3, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
 __decorate([

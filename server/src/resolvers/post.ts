@@ -49,7 +49,6 @@ export class PostResolver {
         if (vote) {
             if (value === 0) {
                 const prevValue = vote.value;
-                console.log(prevValue);
                 await DATASOURCE.transaction(async (tm) => {
                     await tm.query(`
                         delete from vote
@@ -193,20 +192,22 @@ export class PostResolver {
 
     // updates an existing post
     @Mutation(() => Post, { nullable: true })
+    @UseMiddleware(isAuth)
     async updatePost(
-        @Arg('id') id: number,
-        @Arg('title') title: string
+        @Arg('id', () => Int) id: number,
+        @Arg('title') title: string,
+        @Arg('text') text: string,
+        @Ctx() {req}: MyContext
     ): Promise<Post | null> {
-        // first find post
-        const post = Post.findOne({where: {id: id}});
-        if (!post) {
-            return null;
-        }
-        // then update
-        if (typeof title !== undefined) {
-            await Post.update({id}, {title});
-        }
-        return post;
+        const result = await DATASOURCE.createQueryBuilder()
+            .update(Post)
+            .set({title: title, text: text})
+            .where('id = :id and "creatorId" = :creatorId', {
+                id: id, creatorId: req.session.userId
+            })
+            .returning('*')
+            .execute();
+        return result.raw[0];
     }
 
     // deletes an existing post

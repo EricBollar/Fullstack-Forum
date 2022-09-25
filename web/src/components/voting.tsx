@@ -1,6 +1,8 @@
+import { withUrqlClient } from "next-urql";
 import React from "react";
 import { useVoteMutation } from "../generated/graphql";
 import styles from "../styles/voting.module.css";
+import { createUrqlClient } from "../utils/createUrqlClient";
 
 interface votingProps {
     voteStatus?: number,

@@ -95,34 +95,41 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 },
 
                 vote: (result, args, cache, info) => {
-                    // const {postId, value} = args as VoteMutationVariables;
-                    // const data = cache.readFragment(
-                    //     gql`
-                    //         fragment _idPointsVoteStatus on Post {
-                    //             id
-                    //             points
-                    //             voteStatus
-                    //         }
-                    //     `,
-                    //     { id: postId } as any
-                    // );
-                    // if (data) {
-                    //     if (data.voteStatus === value) {
-                    //         return;
-                    //     }
-                    //     const newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
-                    //     cache.writeFragment(
-                    //         gql`
-                    //             fragment _points on Post {
-                    //                 points
-                    //                 voteStatus
-                    //             }
-                    //         `,
-                    //         {id: postId, points: newPoints, voteStatus: value} as any
-                    //     );
-                    // }   
+                    const {postId, value} = args as VoteMutationVariables;
+                    const data = cache.readFragment(
+                        gql`
+                            fragment _idPointsVoteStatus on Post {
+                                id
+                                points
+                                voteStatus
+                            }
+                        `,
+                        { id: postId } as any
+                    );
+                    if (data) {
+                        if (data.voteStatus === value) {
+                            return;
+                        }
+                        let newPoints = data.points;
+                        if (value !== 0) {
+                            // flipping vote or first-time vote
+                            newPoints += (!data.voteStatus ? 1 : 2) * value;
+                        } else {
+                            // undoing vote
+                            newPoints -= data.voteStatus;
+                        }
+                        cache.writeFragment(
+                            gql`
+                                fragment _points on Post {
+                                    points
+                                    voteStatus
+                                }
+                               `,
+                            {id: postId, points: newPoints, voteStatus: value} as any
+                        );
+                    }  
                     
-                    cache.invalidate("Query");     
+                    // cache.invalidate("Query");     
                 },
 
                 createPost: (result, args, cache, info) => {

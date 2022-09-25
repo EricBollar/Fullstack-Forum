@@ -4,6 +4,7 @@ import styles from "../styles/post.module.css";
 import NextLink from "next/link";
 import Voting from './voting';
 import DeletePost from './deletePost';
+import EditPostButton from './editPostButton';
 
 interface postProps {
     post: PostSnippetFragment
@@ -28,6 +29,11 @@ const Post: React.FC<postProps> = ({post, creatorUsername}) => {
                     </div>
                 </div>
             </NextLink>
+            <EditPostButton
+                route = ""
+                postId={post.id}
+                creatorUsername={creatorUsername}
+                />
             <DeletePost
                 postId={post.id}
                 creatorUsername={creatorUsername}

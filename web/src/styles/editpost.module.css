@@ -1,0 +1,26 @@
+.editpost {
+    background-color: palegoldenrod;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.editpost > form > input {
+	outline-width: 0;
+	border: none;
+	padding: 5px 20px;
+	margin: 10px 0;
+	border-radius: 99px;
+	background-color: #eff2f5;
+    display: flex;
+}
+
+.editpost__error {
+    color: darkred;
+    margin-top: 10px;
+}
+
+.editpost__title {
+    margin-bottom: 10px;
+}
