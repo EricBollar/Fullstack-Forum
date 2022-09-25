@@ -1,0 +1,9 @@
+fragment UserErrors on UserResponse {
+    errors {
+        field
+        message
+    }
+    user {
+        ...UsernameId
+    }
+}

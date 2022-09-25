@@ -37,21 +37,23 @@ const Index = () => {
   return (
     <>
     <Navbar />
-    <h2 className={styles.title}>Posts</h2>
-    {!data 
-      ? <div>Loading posts...</div> 
-      : data.posts.posts.map((p) => 
-        <Post 
-          title = {p.title} 
-          text = {p.textSnippet}
-          timestamp = {new Date(parseInt(p.createdAt)).toTimeString()}
-          //creator = {await p.id}
-          />
-    )}
-    {data && data.posts.hasMore
-      ? <button className={styles.index__button} onClick={loadMore}>Load More</button>
-      : null
-    }
+    <div className={styles.index}>
+      <br/>
+      <h2 className={styles.index__title}>Posts</h2>
+      {!data || data.posts?.posts === undefined
+        ? <div>Loading posts...</div> 
+        : data.posts.posts.map((p) => 
+          <Post 
+            post = {p}
+            username = {p.creator.username}
+            />
+      )}
+      {data && data.posts.hasMore
+        ? <button className={styles.index__button} onClick={loadMore}>Load More</button>
+        : null
+      }
+      <br/>
+    </div>
     </>
   )
 }

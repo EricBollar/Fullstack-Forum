@@ -1,8 +1,10 @@
 import { dedupExchange, Exchange, fetchExchange, stringifyVariables } from 'urql'
 import { cacheExchange, Cache, QueryInput, Resolver } from '@urql/exchange-graphcache';
-import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
+import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation, VoteMutationVariables } from '../generated/graphql';
 import { pipe, tap } from 'wonka';
 import Router from "next/router";
+import gql from 'graphql-tag'
+import { isServer } from './isServer';
 
 export const cursorPagination = (): Resolver => {
     return (_parent, fieldArgs, cache, info) => {
@@ -33,59 +35,6 @@ export const cursorPagination = (): Resolver => {
         posts: results
       };
     }
-  
-    //   const visited = new Set();
-    //   let result: NullArray<string> = [];
-    //   let prevOffset: number | null = null;
-  
-    //   for (let i = 0; i < size; i++) {
-    //     const { fieldKey, arguments: args } = fieldInfos[i];
-    //     if (args === null || !compareArgs(fieldArgs, args)) {
-    //       continue;
-    //     }
-  
-    //     const links = cache.resolve(entityKey, fieldKey) as string[];
-    //     const currentOffset = args[offsetArgument];
-  
-    //     if (
-    //       links === null ||
-    //       links.length === 0 ||
-    //       typeof currentOffset !== 'number'
-    //     ) {
-    //       continue;
-    //     }
-  
-    //     const tempResult: NullArray<string> = [];
-  
-    //     for (let j = 0; j < links.length; j++) {
-    //       const link = links[j];
-    //       if (visited.has(link)) continue;
-    //       tempResult.push(link);
-    //       visited.add(link);
-    //     }
-  
-    //     if (
-    //       (!prevOffset || currentOffset > prevOffset) ===
-    //       (mergeMode === 'after')
-    //     ) {
-    //       result = [...result, ...tempResult];
-    //     } else {
-    //       result = [...tempResult, ...result];
-    //     }
-  
-    //     prevOffset = currentOffset;
-    //   }
-  
-    //   const hasCurrentPage = cache.resolve(entityKey, fieldName, fieldArgs);
-    //   if (hasCurrentPage) {
-    //     return result;
-    //   } else if (!(info as any).store.schema) {
-    //     return undefined;
-    //   } else {
-    //     info.partial = true;
-    //     return result;
-    //   }
-    // };
   };
 
 const errorExchange: Exchange = ({ forward }) => ops$ => {
@@ -110,73 +59,117 @@ function betterUpdateQuery<Result, Query> (
     return cache.updateQuery(qi, (data) => fn(result, data as any) as any);
   }
 
-export const createUrqlClient = (ssrExchange: any) => ({
-    url: "http://localhost:4000/graphql",
-    fetchOptions: {
-        credentials: "include" as const,
-    },
-    exchanges: [dedupExchange, cacheExchange({
-        keys: {
-            PaginatedPosts: () => null,
+export const createUrqlClient = (ssrExchange: any, ctx: any) => {
+    let cookie = '';
+    if (isServer()) {
+        cookie = ctx.req.headers.cookie;
+    }
+    
+    return ({
+        url: "http://localhost:4000/graphql",
+        fetchOptions: {
+            credentials: "include" as const,
+            headers: cookie ? {
+                cookie
+            } : undefined
         },
-        resolvers: {
-            Query: {
-                // matches name in posts.graphql
-                posts: cursorPagination()
+        exchanges: [dedupExchange, cacheExchange({
+            keys: {
+                PaginatedPosts: () => null,
             },
-        },
-        updates: {
-        Mutation: {
-            // should probably destructure the following code in future...
-
-            // update MeQuery to null for successful logout
-            logout: (result, args, cache, info) => {
-            betterUpdateQuery<LogoutMutation, MeQuery>(
-                cache,
-                {query: MeDocument},
-                result,
-                () => ({ me: null })
-            );
+            resolvers: {
+                Query: {
+                    // matches name in posts.graphql
+                    posts: cursorPagination()
+                },
             },
+            updates: {
+            Mutation: {
+                // should probably destructure the following code in future...
 
-            // update MeQuery upon new successful LoginMutation
-            login: (result, args, cache, info) => {
-            betterUpdateQuery<LoginMutation, MeQuery>(
-                cache, 
-                {query: MeDocument},
-                result,
-                (loginResult, query) => {
-                // something went wrong
-                if (loginResult.login.errors) {
-                    return query
-                // successful login -> update MeQuery (qid cookie)
-                } else {
-                    return {
-                    me: loginResult.login.user
+                vote: (result, args, cache, info) => {
+                    const {postId, value} = args as VoteMutationVariables;
+                    const data = cache.readFragment(
+                        gql`
+                            fragment _idPointsVoteStatus on Post {
+                                id
+                                points
+                                voteStatus
+                            }
+                        `,
+                        { id: postId } as any
+                    );
+                    if (data) {
+                        if (data.voteStatus === value) {
+                            return;
+                        }
+                        const newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
+                        cache.writeFragment(
+                            gql`
+                                fragment _points on Post {
+                                    points
+                                    voteStatus
+                                }
+                            `,
+                            {id: postId, points: newPoints, voteStatus: value} as any
+                        );
+                    }        
+                },
+
+                createPost: (result, args, cache, info) => {
+                    // this is the only way I could get it to work...
+                    // not sure if this is terrible but I will leave for now
+                    cache.invalidate("Query");
+                },
+
+                // update MeQuery to null for successful logout
+                logout: (result, args, cache, info) => {
+                betterUpdateQuery<LogoutMutation, MeQuery>(
+                    cache,
+                    {query: MeDocument},
+                    result,
+                    () => ({ me: null })
+                );
+                },
+
+                // update MeQuery upon new successful LoginMutation
+                login: (result, args, cache, info) => {
+                betterUpdateQuery<LoginMutation, MeQuery>(
+                    cache, 
+                    {query: MeDocument},
+                    result,
+                    (loginResult, query) => {
+                    // something went wrong
+                    if (loginResult.login.errors) {
+                        return query
+                    // successful login -> update MeQuery (qid cookie)
+                    } else {
+                        return {
+                        me: loginResult.login.user
+                        }
                     }
-                }
-                });
-            },
+                    });
+                },
 
-            // update MeQuery upon new successful RegisterMutation
-            register: (result, args, cache, info) => {
-            betterUpdateQuery<RegisterMutation, MeQuery>(
-                cache, 
-                {query: MeDocument},
-                result,
-                (registerResult, query) => {
-                // something went wrong
-                if (registerResult.register.errors) {
-                    return query
-                // successful register -> update MeQuery (qid cookie)
-                } else {
-                    return {
-                    me: registerResult.register.user
+                // update MeQuery upon new successful RegisterMutation
+                register: (result, args, cache, info) => {
+                betterUpdateQuery<RegisterMutation, MeQuery>(
+                    cache, 
+                    {query: MeDocument},
+                    result,
+                    (registerResult, query) => {
+                    // something went wrong
+                    if (registerResult.register.errors) {
+                        return query
+                    // successful register -> update MeQuery (qid cookie)
+                    } else {
+                        return {
+                        me: registerResult.register.user
+                        }
                     }
-                }
-                });
-            },
-        }
+                    });
+                },
+            }
         }
     }), errorExchange, ssrExchange, fetchExchange],
-});
+})};

@@ -8,6 +8,7 @@ const Post_1 = require("../entities/Post");
 const User_1 = require("../entities/User");
 const typeorm_1 = require("typeorm");
 const path_1 = __importDefault(require("path"));
+const Vote_1 = require("../entities/Vote");
 exports.DATASOURCE = new typeorm_1.DataSource({
     type: 'postgres',
     database: 'forumdb2',
@@ -16,6 +17,6 @@ exports.DATASOURCE = new typeorm_1.DataSource({
     logging: true,
     migrations: [path_1.default.join(__dirname, "../migrations/*")],
     synchronize: true,
-    entities: [Post_1.Post, User_1.User]
+    entities: [Post_1.Post, User_1.User, Vote_1.Vote]
 });
 //# sourceMappingURL=initializeORM.js.map

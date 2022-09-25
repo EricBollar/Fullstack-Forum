@@ -2,6 +2,7 @@ import { Post } from "../entities/Post";
 import { User } from "../entities/User";
 import { DataSource } from "typeorm";
 import path from "path";
+import { Vote } from "../entities/Vote";
 
 // importing DATASOURCE allows us to use querybuilder in resolvers
 export const DATASOURCE = new DataSource({
@@ -14,5 +15,5 @@ export const DATASOURCE = new DataSource({
     migrations: [path.join(__dirname, "../migrations/*")],
     // synchronize auto runs migrations, good for development
     synchronize: true,
-    entities: [Post, User]
+    entities: [Post, User, Vote]
 });

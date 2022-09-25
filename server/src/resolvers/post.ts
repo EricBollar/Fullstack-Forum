@@ -3,6 +3,7 @@ import { Resolver, Query, Arg, Mutation, InputType, Field, Ctx, UseMiddleware, I
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { DATASOURCE } from "../utils/initializeORM";
+import { Vote } from "../entities/Vote";
 
 @InputType()
 class PostOptions {
@@ -29,26 +30,92 @@ export class PostResolver {
         return root.text.slice(0, 200);
     }
 
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async vote (
+        @Arg("value", () => Int) value: number,
+        @Arg("postId", () => Int) postId: number,
+        @Ctx() {req}: MyContext
+    ) {
+        if (!(value === 1 || value === 0 || value === -1)) {
+            return false;
+        }
+        const userId = req.session.userId;
+
+        const vote = await Vote.findOne({where: {postId, userId}});
+        if (vote) {
+            if (vote.value !== value) {
+                await DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        update vote
+                        set value = $1
+                        where "postId" = $2 and "userId" = $3
+                    `, [value, postId, userId])
+                });
+                await DATASOURCE.transaction(async (tm) => {
+                    await tm.query(`
+                        update post
+                        set points = points + $1
+                        where id = $2
+                    `, [2 * value, postId])
+                    // upvote -> downvote is really -2 to points and vice-versa
+                });
+            } else {
+                return false;
+            }
+        } else {
+            await DATASOURCE.transaction(async (tm) => {
+                await tm.query(`
+                    insert into vote("userId", "postId", value)
+                    values ($1, $2, $3)
+                `, [userId, postId, value])
+                await tm.query(`
+                    update post
+                    set points = points + $1
+                    where id = $2;
+                `, [value, postId])
+            });
+        }
+        return true;
+    }
+
     // returns posts
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
         // cursor will be null on first call
-        @Arg("cursor", () => String, {nullable: true}) cursor: string | null
+        @Arg("cursor", () => String, {nullable: true}) cursor: string | null,
+        @Ctx() {req}: MyContext
     ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);
-        const queryBuilder = DATASOURCE
-            .getRepository(Post)
-            .createQueryBuilder("p") // alias of what we want to call it
-            .orderBy('"createdAt"', "DESC")
-            // there is a .limit() but for some reason .take() is best for pagination
-            // docs do not explicity say why...
-            .take(realLimit + 1);
+
+        const replacements: any[] = [realLimit + 1];
+        if (req.session.userId) {
+            replacements.push(req.session.userId);
+        }
+        let cursorIndex = 3;
         if (cursor) {
-            queryBuilder.where('"createdAt" < :cursor', {cursor: new Date(parseInt(cursor))});
+            replacements.push(new Date(parseInt(cursor)));
+            cursorIndex = replacements.length;
         }
 
-        const posts = await queryBuilder.getMany();
+        // replacements indices start at 1 not 0 for sql
+        const posts = await DATASOURCE.query(`
+            select p.*,
+            json_build_object(
+                'id', u.id,
+                'username', u.username,
+                'email', u.email
+                ) creator
+            ${req.session.userId 
+                ? ',(select value from vote where "userId" = $2 and "postId" = p.id) "voteStatus"'
+                : 'null as "voteStatus"'}
+            from post p
+            inner join "user" u on u.id = p."creatorId"
+            ${cursor ? `where p."createdAt" < $${cursorIndex}` : ''}
+            order by p."createdAt" DESC
+            limit $1
+        `, replacements);
 
         return { 
             posts: posts.slice(0, realLimit), 

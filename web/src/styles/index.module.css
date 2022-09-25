@@ -1,5 +1,8 @@
-.title {
-  margin-top: 15px;
+.index {
+  background-color: darkkhaki;
+}
+
+.index__title {
   text-align: center;
 }
 
@@ -7,5 +10,4 @@
   display: flex;
   margin: auto;
   margin-top: 15px;
-  margin-bottom: 15px;
 }
