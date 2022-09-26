@@ -6,6 +6,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
     <Head>
+      <title>Fullstack-Forum | Eric Bollar</title>
       <link rel="shortcut icon" href="/icon.png" />
     </Head>
     <Component {...pageProps} />
