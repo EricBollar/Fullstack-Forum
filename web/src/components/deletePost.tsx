@@ -1,6 +1,8 @@
 import React from 'react';
 import { useDeletePostMutation, useMeQuery } from '../generated/graphql';
-import styles from "../styles/deletePost.module.css";
+import styles from "../styles/deletepostbutton.module.css";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton } from '@mui/material';
 
 interface deletePostProps {
     postId: number,
@@ -23,7 +25,9 @@ const DeletePost: React.FC<deletePostProps> = ({postId, creatorUsername}) => {
     }
 
     let deleteButton = (
-        <button onClick={handleDelete} className={styles.deletePost}>Delete</button>
+        <IconButton onClick={handleDelete}>
+            <DeleteIcon className={styles.deletePost}/>
+        </IconButton>
     );
 
     if (!data || data.me?.username !== creatorUsername) {

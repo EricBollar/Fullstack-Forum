@@ -1,0 +1,24 @@
+.posts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
+}
+
+.posts__button {
+	display: flex;
+	align-items: center;
+    justify-content: center;
+	padding: 10px;
+    background-color:cornflowerblue;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    width: 100px;
+    margin-top: 10px;
+}
+
+.posts__button:hover {
+	background-color: lightgray;
+    cursor: pointer;
+}

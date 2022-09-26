@@ -12,37 +12,47 @@ interface postProps {
 }
 
 const Post: React.FC<postProps> = ({post, creatorUsername}) => {
+    const [{data, fetching}] = useMeQuery();
+    const borderName =
+        (data?.me?.username) === creatorUsername
+            ? styles.post__owned
+            : styles.post;
+
 	return (
-		<div className={styles.post}>
-            <NextLink href="/post/[id]" as={`/post/${post.id}`}>
-                <div className={styles.post__content}>
-                    <div className={styles.post__top}>
-                            <h2>{post.title}</h2>
+		<div className={borderName}>
+            <div className={styles.post__content}>
+                <div className={styles.post__top}>
+                    <NextLink href="/post/[id]" as={`/post/${post.id}`}>
                         <div className={styles.post__topInfo}>
-                            <h3>{creatorUsername}</h3>
-                            <p>{new Date(parseInt(post.createdAt)).toTimeString()}</p>
+                            <h2>{post.title}</h2>
+                            <div className={styles.post__authorship}>
+                                <h3>by {creatorUsername}</h3>
+                                <p>Posted at {new Date(parseInt(post.createdAt)).toLocaleTimeString()} on {new Date(parseInt(post.createdAt)).toLocaleDateString()}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div className={styles.post__bottom}>
-                        <p>{post.textSnippet}</p>
-                        <br/>
+                    </NextLink>
+                    <div className={styles.post__engagement}>
+                        <EditPostButton
+                            route = ""
+                            postId={post.id}
+                            creatorUsername={creatorUsername}
+                            />
+                        <DeletePost
+                            postId={post.id}
+                            creatorUsername={creatorUsername}
+                            />
+                        <Voting
+                            postId={post.id} 
+                            points={post.points} 
+                            voteStatus={post.voteStatus as number | undefined}
+                            />
                     </div>
                 </div>
-            </NextLink>
-            <EditPostButton
-                route = ""
-                postId={post.id}
-                creatorUsername={creatorUsername}
-                />
-            <DeletePost
-                postId={post.id}
-                creatorUsername={creatorUsername}
-                />
-            <Voting
-                postId={post.id} 
-                points={post.points} 
-                voteStatus={post.voteStatus as number | undefined}
-                />
+                <div className={styles.post__bottom}>
+                    <p>{post.textSnippet}</p>
+                    <br/>
+                </div>
+            </div>
 		</div>
 	)
 }

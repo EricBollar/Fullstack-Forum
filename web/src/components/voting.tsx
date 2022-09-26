@@ -1,8 +1,9 @@
-import { withUrqlClient } from "next-urql";
 import React from "react";
 import { useVoteMutation } from "../generated/graphql";
 import styles from "../styles/voting.module.css";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { IconButton } from '@mui/material';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface votingProps {
     voteStatus?: number,
@@ -32,9 +33,13 @@ const Voting: React.FC<votingProps> = ({voteStatus, postId, points}) => {
     return (
         <div className={styles.voting}>
             {/* Not sure how to use "post__upvote--active" here... using upvote_active as temporary substitute */}
-            <button className={voteStatus === 1 ? styles.voting__upvote_active : styles.voting__upvote} onClick={upVote}>⬆</button>
+            <IconButton onClick={upVote}>
+                <KeyboardArrowUpIcon className={voteStatus === 1 ? styles.voting__upvote_active : styles.voting__upvote} />
+            </IconButton>
             <p>{points}</p>
-            <button className={voteStatus === -1 ? styles.voting__downvote_active : styles.voting__downvote} onClick={downVote}>⬇</button>
+            <IconButton onClick={downVote}>
+                <KeyboardArrowDownIcon className={voteStatus === -1 ? styles.voting__downvote_active : styles.voting__downvote} />
+            </IconButton>
         </div>
     );
 }

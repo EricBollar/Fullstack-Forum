@@ -1,13 +1,19 @@
 .index {
-  background-color: darkkhaki;
+  background-color:gray;
+  display: flex;
+  margin: 0;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.index__posts {
+  margin-top: 5px;
+	display: flex;
+  flex: 1;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .index__title {
-  text-align: center;
-}
-
-.index__button {
-  display: flex;
-  margin: auto;
-  margin-top: 15px;
+  
 }

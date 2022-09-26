@@ -15,6 +15,8 @@ const connect_redis_1 = __importDefault(require("connect-redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const cors_1 = __importDefault(require("cors"));
 const initializeORM_1 = require("./utils/initializeORM");
+const createUserLoader_1 = require("./utils/createUserLoader");
+const createVoteLoader_1 = require("./utils/createVoteLoader");
 const main = async () => {
     await initializeORM_1.DATASOURCE.initialize();
     await initializeORM_1.DATASOURCE.runMigrations();
@@ -49,7 +51,13 @@ const main = async () => {
             ],
             validate: false
         }),
-        context: ({ req, res }) => ({ req, res, redis })
+        context: ({ req, res }) => ({
+            req,
+            res,
+            redis,
+            userLoader: (0, createUserLoader_1.createUserLoader)(),
+            voteLoader: (0, createVoteLoader_1.createVoteLoader)()
+        })
     });
     await apolloServer.start();
     apolloServer.applyMiddleware({ app, cors: false });

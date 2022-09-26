@@ -4,7 +4,7 @@ import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { DATASOURCE } from "../utils/initializeORM";
 import { Vote } from "../entities/Vote";
-import { User } from "src/entities/User";
+import { User } from "../entities/User";
 
 @InputType()
 class PostOptions {
@@ -121,8 +121,7 @@ export class PostResolver {
     async posts(
         @Arg("limit", () => Int) limit: number,
         // cursor will be null on first call
-        @Arg("cursor", () => String, {nullable: true}) cursor: string | null,
-        @Ctx() {req}: MyContext
+        @Arg("cursor", () => String, {nullable: true}) cursor: string | null
     ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);
 
@@ -133,7 +132,7 @@ export class PostResolver {
 
         // replacements indices start at 1 not 0 for sql
         const posts = await DATASOURCE.query(`
-            select p.*,
+            select p.*
             from post p
             ${cursor ? `where p."createdAt" < $2` : ''}
             order by p."createdAt" DESC
@@ -149,8 +148,7 @@ export class PostResolver {
     // returns one post or null given id
     @Query(() => Post, { nullable: true })
     async post(
-        @Arg('id', () => Int) id: number,
-        @Ctx() {req}: MyContext
+        @Arg('id', () => Int) id: number
     ): Promise<Post | null> {
         // return Post.findOne({where: {id: id}});
 
@@ -158,7 +156,7 @@ export class PostResolver {
 
         // replacements indices start at 1 not 0 for sql
         const post = await DATASOURCE.query(`
-            select p.*,
+            select p.*
             from post p
             where p.id = $1
             limit 1

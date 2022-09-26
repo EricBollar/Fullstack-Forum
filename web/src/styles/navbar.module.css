@@ -3,38 +3,66 @@
 	padding: 15px 20px;
 	justify-content: space-between;
 	position: sticky;
-	background-color: rgb(252, 248, 208);
+	background-color:darkslategray;
 	z-index: 100;
 	top: 0;
 	box-shadow: 0px 5px 8px -9px rgba(0, 0, 0, 0.75);
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .navbar__left {
-	display: inline-block;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.navbar__left > img {
+	height: 50px;
 }
 
 .navbar__left:hover {
 	cursor: pointer;
 }
 
+.navbar__leftTitle {
+	display: flex;
+	flex-direction: column;
+	padding: 5px;
+}
+
+.navbar__leftTitle > h2 {
+	color: aliceblue;
+}
+
+.navbar__leftTitle > h4 {
+	color:lightsteelblue;
+}
+
 .navbar__right {
 	display: flex;
 }
 
-.navbar__option {
+.navbar__options {
 	display: flex;
+	justify-content: center;
 	align-items: center;
-	padding: 0 30px;
-	cursor: pointer;
-    margin: 0 5px;
+}
+
+.navbar__option {
+	background-color:cornflowerblue;
+	display: flex;
+	border-radius: 10px;
+	width: 85px;
+	height: 50px;
+	margin: auto;
+	margin-right: 10px;
+	align-items: center;
+	justify-content: center;
 }
 
 .navbar__option:hover {
-	background-color: rgb(165, 162, 132);
-	border-radius: 10px;
-	align-items: center;
-	padding: 0 30px;
-	border-bottom: none;
+	background-color: lightgray;
+    cursor: pointer;
 }
 
 .navbar__author {
@@ -42,5 +70,6 @@
 }
 
 .navbar__username {
-    margin: auto;
+	color:aliceblue;
+    margin-right: 10px;
 }

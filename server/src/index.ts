@@ -12,6 +12,7 @@ import { MyContext } from "./types";
 import cors from "cors"
 import { DATASOURCE } from "./utils/initializeORM";
 import { createUserLoader } from "./utils/createUserLoader";
+import { createVoteLoader } from "./utils/createVoteLoader";
 
 const main = async () => {
     await DATASOURCE.initialize();

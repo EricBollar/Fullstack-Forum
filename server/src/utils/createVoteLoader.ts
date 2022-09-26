@@ -1,5 +1,4 @@
 import DataLoader from "dataloader";
-import { In } from "typeorm";
 import { Vote } from "../entities/Vote";
 
 // takes array of {postId, userId} and returns array of votestatus: numbers | null

@@ -10,6 +10,10 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.6",
+    "@mui/material": "^5.10.6",
     "@urql/exchange-graphcache": "^5.0.1",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",

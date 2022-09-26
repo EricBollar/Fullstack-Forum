@@ -1,5 +1,4 @@
-import { withUrqlClient } from 'next-urql'
-import { usePostsQuery } from '../generated/graphql'
+import { withUrqlClient, WithUrqlProps } from 'next-urql'
 import styles from "../styles/index.module.css"
 import { createUrqlClient } from '../utils/createUrqlClient'
 
@@ -12,48 +11,22 @@ import { createUrqlClient } from '../utils/createUrqlClient'
 // but it gets in the way when trying to do things with ssr
 // so we need to use client side of next/dynamic
 import dynamic from 'next/dynamic'
-import Post from '../components/post'
-import { useState } from 'react'
+import Sidebar from '../components/sideBar'
+import Posts from '../components/posts'
+import About from '../components/about'
 const Navbar = dynamic(() => import("../components/navbar"), { ssr: false })
 
 const Index = () => {
-  const [variables, setVariables] = useState({limit: 10, cursor: undefined as string | undefined});
-  const [{data, fetching}] = usePostsQuery({variables});
-
-  // edge case
-  if (!fetching && !data) {
-    return <div>No Posts Found...</div>
-  }
-
-  const loadMore = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const posts = data!.posts.posts;
-    setVariables({
-      limit: variables.limit,
-      cursor: posts[posts.length - 1].createdAt
-    })
-  }
-
   return (
     <>
     <Navbar />
     <div className={styles.index}>
-      <br/>
-      <h2 className={styles.index__title}>Posts</h2>
-      {!data || data.posts?.posts === undefined
-        ? <div>Loading posts...</div> 
-        : data.posts.posts.map((p) => 
-          !p
-          ? null // when deleting post, cache invalidation makes post = null
-          : <Post 
-              post = {p}
-              creatorUsername = {p.creator.username}
-              />
-      )}
-      {data && data.posts.hasMore
-        ? <button className={styles.index__button} onClick={loadMore}>Load More</button>
-        : null
-      }
-      <br/>
+      <Sidebar />
+      <div className={styles.index__posts}>
+        <h2 className={styles.index__title}>Posts</h2>
+        <Posts />
+      </div>
+      <About />
     </div>
     </>
   )
