@@ -34,7 +34,7 @@ const EditPost: React.FC<{}> = () => {
         );
     }
 
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault(); // No Page Refresh
 
         const {error} = await update({id: post.id, title: title as string, text: text as string});
@@ -52,23 +52,21 @@ const EditPost: React.FC<{}> = () => {
         <>
         <Navbar />
         <div className={styles.editpost}>
-            <form>
+            <div className={styles.editpost__form}>
                 {/* Title */}
                 <h2 className={styles.editpost__title}>Edit Post #{post.id}</h2>
     
                 {/* Post Title Input */}
-                <h3 className={styles.editpost__inputeHeader}>Title</h3>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..." type="text"/>
+                <input className={styles.editpost__titleField} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..." type="text"/>
                 {/* Text Input */}
-                <h3 className={styles.editpost__inputeHeader}>Text</h3>
-                <textarea rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
+                <textarea className={styles.editpost__textField} rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
                 <br/>
 
                 {/* Submit Button */}
-                <button onClick={handleSubmit} type="submit">Update Post</button>
+                <div className={styles.editpost__button} onClick={handleSubmit}>Update Post</div>
                 {/* Error Messages */}
                 <h3 className={styles.editpost__error}>{errorMessage}</h3>
-            </form>
+            </div>
         </div>
         </>
     );

@@ -1,10 +1,10 @@
-.login {
+.createpost {
     background-color: gray;
 	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     height: 100vh;
 }
 
-.login__form {
+.createpost__form {
     padding-top: 25px;
     display: flex;
     flex-direction: column;
@@ -13,7 +13,7 @@
     margin: 0;
 }
 
-.login__form > input {
+.createpost__form > input {
 	outline-width: 0;
 	border: none;
 	padding: 5px 20px;
@@ -23,34 +23,48 @@
     display: flex;
 }
 
-.login__error {
+.createpost_error {
     color: darkred;
     margin-top: 10px;
 }
 
-.login__title {
+.createpost__title {
     margin-bottom: 10px;
 }
 
-.login__button {
+.createpost__button {
 	background-color:cornflowerblue;
     border: 1px solid blue;
 	display: flex;
 	border-radius: 10px;
-	width: 85px;
+	width: 100px;
 	height: 50px;
     margin-top: 5px;
 	align-items: center;
 	justify-content: center;
-    margin-bottom: 10px;
 }
 
-.login__button:hover {
+.createpost__button:hover {
 	background-color: lightgray;
     cursor: pointer;
 }
 
-.login__forgotpassword:hover {
-	color: blue;
-    cursor: pointer;
+.createpost__titlefield {
+    margin-top: 10px;
+    width: 50%;
+}
+
+.createpost__textfield {
+    margin-top: 10px;
+    width: 50%;
+    height: 100%;
+    resize: none;
+    outline-width: 0;
+	border: none;
+	padding: 5px 20px;
+	margin: 5px 0;
+	border-radius: 10px;
+	background-color: #eff2f5;
+    display: flex;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

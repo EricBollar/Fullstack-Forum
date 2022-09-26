@@ -9,7 +9,7 @@
     margin-top: 10px;
     padding: 10px 10px;
     width: 500px;
-    background-color: cornflowerblue;
+    background-color:deepskyblue;
     display: flex;
     flex-direction: column;
 }
@@ -20,4 +20,31 @@
 
 .about__info > p {
     margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.about__feature {
+    margin-bottom: 10px;
+    display: flex;
+}
+
+.about__feature > img {
+    width: 75px;
+    height: 75px;
+}
+
+.about__featurecontent {
+    margin-left: 10px;
+}
+
+.about__featurecontent > p {
+    margin-right: 10px;
+}
+
+.about__circlify {
+    border-radius: 999px;
+}
+
+.about__sectiontitle {
+    margin-bottom: 10px;
 }

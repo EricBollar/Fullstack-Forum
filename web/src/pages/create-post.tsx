@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react"
 import Navbar from "../components/navbar";
 import { useCreatePostMutation, useMeQuery } from "../generated/graphql";
-import styles from "../styles/create-post.module.css"
+import styles from "../styles/createpost.module.css"
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 
@@ -21,7 +21,7 @@ const CreatePost: React.FC<{}> = () => {
 	const [text, setText] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault(); // No Page Refresh
 
         const {error} = await createPost({options: {title: title, text: text}});
@@ -38,23 +38,20 @@ const CreatePost: React.FC<{}> = () => {
         <>
         <Navbar />
         <div className={styles.createpost}>
-            <form>
+            <div className={styles.createpost__form}>
                 {/* Title */}
                 <h2 className={styles.createpost__title}>Create Post</h2>
     
                 {/* Post Title Input */}
-                <h3 className={styles.createpost__inputHeader}>Title</h3>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..." type="text"/>
+                <input className={styles.createpost__titlefield} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..." type="text"/>
                 {/* Text Input */}
-                <h3 className={styles.createpost__inputHeader}>Text</h3>
-                <textarea rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
-                <br/>
+                <textarea className={styles.createpost__textfield} rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
 
                 {/* Submit Button */}
-                <button onClick={handleSubmit} type="submit">CreatePost</button>
+                <div className={styles.createpost__button} onClick={handleSubmit}>Create Post</div>
                 {/* Error Messages */}
                 <h3 className={styles.createpost__error}>{errorMessage}</h3>
-            </form>
+            </div>
         </div>
         </>
     );

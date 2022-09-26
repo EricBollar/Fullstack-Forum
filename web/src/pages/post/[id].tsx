@@ -1,7 +1,7 @@
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import Navbar from "../../components/navbar";
-import { usePostQuery } from "../../generated/graphql";
+import { useMeQuery, usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import styles from "../../styles/postpage.module.css";
 import Voting from "../../components/voting";
@@ -16,6 +16,12 @@ interface postPageProps {
 const PostPage: React.FC<postPageProps> = ({}) => {
     const [{data, error, fetching}] = getPostFromUrl();
     const post = data?.post
+
+    const [{data: meData}] = useMeQuery();
+    const borderName =
+        (meData?.me?.id === data?.post?.creator.id)
+            ? styles.postpage__owned
+            : styles.postpage;
 
     // loading data
     if (fetching) {
@@ -40,14 +46,31 @@ const PostPage: React.FC<postPageProps> = ({}) => {
         <>
         <Navbar />
         <div className={styles.postpage__background}>
-            <br/>
-            <div className={styles.postpage}>
+            <div className={borderName}>
                 <div className={styles.postpage__content}>
                     <div className={styles.postpage__top}>
-                        <h1>{post.title}</h1>
                         <div className={styles.postpage__topInfo}>
-                            <h2>{post.creator.username}</h2>
-                            <h3>{new Date(parseInt(post.createdAt)).toTimeString()}</h3>
+                            <h2>{post.title}</h2>
+                            <div className={styles.postpage__authorship}>
+                                <h3>by {post.creator.username}</h3>
+                                <p>Posted at {new Date(parseInt(post.createdAt)).toLocaleTimeString()} on {new Date(parseInt(post.createdAt)).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div className={styles.post__engagement}>
+                            <EditPostButton
+                                route = "../"
+                                postId={post.id}
+                                creatorUsername={post.creator.username}
+                                />
+                            <DeletePost
+                                postId={post.id}
+                                creatorUsername={post.creator.username}
+                                />
+                            <Voting
+                                postId={post.id} 
+                                points={post.points} 
+                                voteStatus={post.voteStatus as number | undefined}
+                                />
                         </div>
                     </div>
                     <div className={styles.postpage__bottom}>
@@ -55,23 +78,8 @@ const PostPage: React.FC<postPageProps> = ({}) => {
                         <br/>
                     </div>
                 </div>
-                <EditPostButton
-                    route="../"
-                    postId={post.id}
-                    creatorUsername={post.creator.username}
-                    />
-                <DeletePost
-                    postId={post.id}
-                    creatorUsername={post.creator.username}
-                    />
-                <Voting 
-                    postId={post.id} 
-                    points={post.points} 
-                    voteStatus={post.voteStatus as number | undefined}
-                    />
             </div>
-            <br/>
-		</div>
+        </div>
         </>
     );
 }

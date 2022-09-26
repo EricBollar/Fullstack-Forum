@@ -18,7 +18,7 @@ const Login: React.FC<loginProps> = ({}) => {
     const [errorMessage, setErrorMessage] = useState("");
 
     // called when user clicks "login" button
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault(); // No Page Refresh
 
 		const response = await login({usernameOrEmail, password});
@@ -49,23 +49,21 @@ const Login: React.FC<loginProps> = ({}) => {
         <>
         <Navbar />
         <div className={styles.login}>
-            <form>
+            <div className={styles.login__form}>
                 {/* Title */}
                 <h2 className={styles.login__title}>Login</h2>
 
                 {/* Username/Email Input */}
-                <h3 className={styles.login__inputHeader}>Username or Email</h3>
                 <input value={usernameOrEmail} onChange={(e) => setUsernameOrEmail(e.target.value)} placeholder="Username/Email..." type="text"/>
                 {/* Password Input */}
-                <h3 className={styles.login__inputHeader}>Password</h3>
                 <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password..." type="password"/>
             
                 {/* Submit Button */}
-                <button onClick={handleSubmit} type="submit">Login</button>
+                <div className={styles.login__button} onClick={handleSubmit}>Login</div>
+                <a className={styles.login__forgotpassword} href="/forgot-password">Forgot Password?</a>
                 {/* Error Messages */}
                 <h3 className={styles.login__error}>{errorMessage}</h3>
-                <a href="/forgot-password">Forgot Password?</a>
-            </form>
+            </div>
         </div>
         </>
     );

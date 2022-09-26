@@ -12,6 +12,7 @@
     border-radius: 10px;
     margin-bottom: 10px;
     width: 150px;
+    border: 1px solid blue;
 }
 
 .sidebar__option:hover {

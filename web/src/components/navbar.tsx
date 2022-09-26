@@ -5,6 +5,7 @@ import { useMeQuery, useLogoutMutation } from "../generated/graphql";
 import Image from "next/image";
 import { IconButton } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
+import path from "path";
 
 interface NavbarProps {
 
@@ -67,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
         <div className={styles.navbar}>
             <NextLink href="/">
                 <div className={styles.navbar__left}>
-                    <img src="icon.png" alt="logo"/>
+                    <img src="/icon.png" alt="logo"/>
                     <div className={styles.navbar__leftTitle}>
                         <h2>Fullstack-Forum</h2>
                         <h4>by Eric Bollar</h4>

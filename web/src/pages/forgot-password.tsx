@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForgotPasswordMutation } from '../generated/graphql'
-import styles from '../styles/login.module.css'
+import styles from '../styles/forgotpassword.module.css'
 import { createUrqlClient } from '../utils/createUrqlClient'
 import { withUrqlClient } from 'next-urql'
 import Navbar from '../components/navbar'
@@ -15,7 +15,7 @@ const ForgotPassword: React.FC<forgotPasswordProps> = ({}) => {
     const [message, setMessage] = useState("");
 
     // called when user clicks "login" button
-    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault(); // No Page Refresh
 
         setMessage("If there is an account associated with that email, a reset-password link has been sent.")
@@ -27,19 +27,18 @@ const ForgotPassword: React.FC<forgotPasswordProps> = ({}) => {
         <>
         <Navbar />
         <div className={styles.forgotpassword}>
-            <form>
+            <div className={styles.forgotpassword__form}>
                 {/* Title */}
                 <h2 className={styles.forgotpassword__title}>Reset Your Password</h2>
 
                 {/* Email Input */}
-                <h3 className={styles.forgotpassword__inputHeader}>Email</h3>
                 <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email..." type="text"/>
         
                 {/* Submit Button */}
-                <button onClick={handleSubmit} type="submit">Send Email</button>
+                <div className={styles.forgotpassword__button} onClick={handleSubmit}>Send Email</div>
                 {/*  Messages */}
                 <h3 className={styles.forgotpassword__message}>{message}</h3>
-            </form>
+            </div>
         </div>
         </>
     );
