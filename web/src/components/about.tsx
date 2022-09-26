@@ -10,7 +10,10 @@ const About: React.FC<aboutProps> = () => {
         <div className={styles.about}>
             <div className={styles.about__info}>
                 <h2>About Fullstack-Forum</h2>
-                <p><i>This forum uses the following elements:</i></p>
+                <div className={styles.about__intro}>
+                    <p><i>This forum uses the following elements ↓</i></p>
+                    <a className={styles.about__introbutton} href="https://github.com/EricBollar/Fullstack-Forum">View the Github!</a>
+                </div>
                 <div className={styles.about__feature}>
                     <img src="/typescript_logo.png" alt="typescript logo"/>
                     <div className={styles.about__featurecontent}>

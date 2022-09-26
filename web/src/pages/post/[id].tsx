@@ -46,6 +46,7 @@ const PostPage: React.FC<postPageProps> = ({}) => {
         <>
         <Navbar />
         <div className={styles.postpage__background}>
+            <h2 className={styles.postpage__title}>Post #{post.id}</h2>
             <div className={borderName}>
                 <div className={styles.postpage__content}>
                     <div className={styles.postpage__top}>

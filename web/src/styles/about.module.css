@@ -48,3 +48,43 @@
 .about__sectiontitle {
     margin-bottom: 10px;
 }
+
+.about__intro {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* rainbow effect for border color */
+@-webkit-keyframes borderColorChange {  
+    0% { border: 2px solid red; }
+    17% { border: 2px solid orange; }
+    34% { border: 2px solid yellow; }
+    51% { border: 2px solid green; }
+    68% { border: 2px solid blue; }
+    85% { border: 2px solid purple; }
+    100% { border: 2px solid red; }
+}
+
+.about__introbutton {
+    background-color:cornflowerblue;
+	display: flex;
+	border-radius: 10px;
+	width: 155px;
+	height: 30px;
+	margin: auto;
+	margin-right: 10px;
+	align-items: center;
+	justify-content: center;
+
+    -webkit-animation-name: borderColorChange;  
+    -webkit-animation-iteration-count: infinite;  
+    -webkit-animation-duration: 3s; 
+}
+
+.about__introbutton:hover {
+    cursor: pointer;
+	background-color: lightgray;
+}

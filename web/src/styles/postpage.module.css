@@ -34,10 +34,6 @@
 	border-bottom: 1px solid lightgray;
 }
 
-.postpage__topInfo:hover {
-    cursor:pointer;
-}
-
 .postpage__authorship {
     margin-top: 5px;
     margin-bottom: 5px;
@@ -66,4 +62,10 @@
     margin-top: 10px;
     margin-left: 15px;
     margin-right: 15px;
+}
+
+.postpage__title {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
 }
