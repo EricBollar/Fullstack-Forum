@@ -11,7 +11,7 @@ const About: React.FC<aboutProps> = () => {
             <div className={styles.about__info}>
                 <h2>About Fullstack-Forum</h2>
                 <div className={styles.about__intro}>
-                    <p><i>This forum uses the following elements ↓</i></p>
+                    <p><i>This forum uses the following elements</i> ↓</p>
                     <a className={styles.about__introbutton} href="https://github.com/EricBollar/Fullstack-Forum">View the Github!</a>
                 </div>
                 <div className={styles.about__feature}>

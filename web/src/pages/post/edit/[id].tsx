@@ -25,7 +25,7 @@ const EditPost: React.FC<{}> = () => {
     const [title, setTitle] = useState(post?.title);
 	const [text, setText] = useState(post?.text);
     
-    if (!post) {
+    if (!fetching && !post) {
         return (
             <>
             <Navbar />
@@ -37,7 +37,7 @@ const EditPost: React.FC<{}> = () => {
     const handleSubmit = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault(); // No Page Refresh
 
-        const {error} = await update({id: post.id, title: title as string, text: text as string});
+        const {error} = await update({id: post!.id, title: title as string, text: text as string});
 
         if (!error) {
             router.back();
@@ -54,12 +54,12 @@ const EditPost: React.FC<{}> = () => {
         <div className={styles.editpost}>
             <div className={styles.editpost__form}>
                 {/* Title */}
-                <h2 className={styles.editpost__title}>Edit Post #{post.id}</h2>
+                <h2 className={styles.editpost__title}>Edit Post #{post?.id}</h2>
     
                 {/* Post Title Input */}
-                <input className={styles.editpost__titleField} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..." type="text"/>
+                <textarea className={styles.editpost__titleField} rows={1} value={title} defaultValue={post?.title} onChange={(e) => setTitle(e.target.value)} placeholder="Title..."/>
                 {/* Text Input */}
-                <textarea className={styles.editpost__textField} rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
+                <textarea className={styles.editpost__textField} rows={10} value={text} defaultValue={post?.text} onChange={(e) => setText(e.target.value)} placeholder="Text..."/>
                 <br/>
 
                 {/* Submit Button */}

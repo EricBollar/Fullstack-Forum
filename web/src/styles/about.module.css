@@ -46,6 +46,7 @@
 }
 
 .about__sectiontitle {
+    font-size: x-large;
     margin-bottom: 10px;
 }
 
@@ -59,13 +60,13 @@
 
 /* rainbow effect for border color */
 @-webkit-keyframes borderColorChange {  
-    0% { border: 2px solid red; }
+    0% { border: 2px solid lightcoral; }
     17% { border: 2px solid orange; }
     34% { border: 2px solid yellow; }
-    51% { border: 2px solid green; }
-    68% { border: 2px solid blue; }
-    85% { border: 2px solid purple; }
-    100% { border: 2px solid red; }
+    51% { border: 2px solid lightgreen; }
+    68% { border: 2px solid lightblue; }
+    85% { border: 2px solid plum; }
+    100% { border: 2px solid lightcoral; }
 }
 
 .about__introbutton {

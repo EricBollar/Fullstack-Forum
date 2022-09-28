@@ -6,12 +6,14 @@ import Image from "next/image";
 import { IconButton } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import path from "path";
+import { useRouter } from "next/router";
 
 interface NavbarProps {
 
 }
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
+    const router = useRouter();
     const [,logout] = useLogoutMutation();
     const [{data, fetching}] = useMeQuery();
 
@@ -20,6 +22,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             return;
         }
         await logout({});
+        // currently have issue with loading more posts while logged in
+        // then logging out -> this solves but is not a perfect solution
+        router.reload();
     }
 
     let navbar__right;

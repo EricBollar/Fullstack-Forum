@@ -142,7 +142,7 @@ export class PostResolver {
         return { 
             posts: posts.slice(0, realLimit), 
             hasMore: posts.length === realLimit + 1
-        };
+        }
     }
 
     // returns one post or null given id
