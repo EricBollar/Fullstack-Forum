@@ -49,7 +49,7 @@ const Post: React.FC<postProps> = ({post, creatorUsername}) => {
                     </div>
                 </div>
                 <div className={styles.post__bottom}>
-                    <p>{post.textSnippet}</p>
+                    <p>{post.textSnippet + (post.textSnippet.length >= 200 ? "..." : "")}</p>
                     <br/>
                 </div>
             </div>
