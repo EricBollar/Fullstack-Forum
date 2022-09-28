@@ -22,7 +22,6 @@ const Posts = () => {
     })
   }
 
-  console.log(meData);
   return (
     <>
     <div className={styles.posts}>

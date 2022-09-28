@@ -30,6 +30,11 @@
     cursor:pointer;
 }
 
+.post__topInfo:hover > h2 {
+    text-decoration: underline;
+    color:blue;
+}
+
 .post__authorship {
     margin-top: 5px;
     margin-bottom: 5px;
