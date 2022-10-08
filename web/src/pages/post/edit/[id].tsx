@@ -5,7 +5,6 @@ import Navbar from "../../../components/navbar";
 import styles from "../../../styles/editpost.module.css"
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { useIsAuth } from "../../../utils/useIsAuth";
-import { getPostFromUrl } from "../../../utils/getPostFromUrl"
 import { usePostQuery, useUpdatePostMutation } from "../../../generated/graphql";
 
 interface editPostProps {
@@ -19,7 +18,13 @@ const EditPost: React.FC<{}> = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [,update] = useUpdatePostMutation();
 
-    const [{data, error, fetching}] = getPostFromUrl();
+    const intId = typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
+    const [{data, error, fetching}] = usePostQuery({
+        pause: intId === -1,
+        variables: {
+            id: intId
+        }
+    });
     const post = data?.post;
 
     const [title, setTitle] = useState(post?.title);

@@ -11,7 +11,7 @@ import { createUrqlClient } from '../utils/createUrqlClient'
 // but it gets in the way when trying to do things with ssr
 // so we need to use client side of next/dynamic
 import dynamic from 'next/dynamic'
-import Sidebar from '../components/sideBar'
+import Sidebar from '../components/sidebar'
 import Posts from '../components/posts'
 import About from '../components/about'
 const Navbar = dynamic(() => import("../components/navbar"), { ssr: false })
@@ -23,7 +23,7 @@ const Index = () => {
     <div className={styles.index}>
       <Sidebar />
       <div className={styles.index__posts}>
-        <h2 className={styles.index__title}>Posts</h2>
+        <h1 className={styles.index__title}>Posts</h1>
         <Posts />
       </div>
       <About />

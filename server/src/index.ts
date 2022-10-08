@@ -13,6 +13,7 @@ import cors from "cors"
 import { DATASOURCE } from "./utils/initializeORM";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createVoteLoader } from "./utils/createVoteLoader";
+import "dotenv-safe/config";
 
 const main = async () => {
     await DATASOURCE.initialize();
@@ -22,14 +23,16 @@ const main = async () => {
 
     const RedisStore = connectRedis(session);
 
-    // ioredis > redis
-    const redis = new Redis();
+    const redis = new Redis(process.env.REDIS_URL);
     // do not need to await redis.connect();
+
+    // necessary to have cookies on prod
+    app.set("trust proxy", 1);
 
     // solves CORS issues
     app.use(
         cors({
-            origin: "http://localhost:3000",
+            origin: process.env.CORS_ORIGIN,
             credentials: true
         })
     );
@@ -49,7 +52,8 @@ const main = async () => {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 Years
                 httpOnly: true,
                 sameSite: "lax", // csrf
-                secure: __prod__ // true -> only works in https
+                secure: __prod__, // true -> only works in https
+                domain: __prod__ ? ".fullstackforum.com" : undefined,
             },
 
             /* UNCOMMENT FOR APOLLO STUDIO
@@ -66,7 +70,7 @@ const main = async () => {
             },*/
 
             saveUninitialized: false,
-            secret: "secret", // should hide this
+            secret: process.env.SESSION_SECRET, // should hide this
             resave: false,
         })
     )
@@ -104,8 +108,8 @@ const main = async () => {
     // set it globally using cors package (see lines 33?-38?)
     apolloServer.applyMiddleware({ app, cors: false });
 
-    app.listen(4000, () => {
-        console.log("Server started on localhost:4000...");
+    app.listen(parseInt(process.env.PORT), () => {
+        console.log("Server started on port " + process.env.PORT);
     });
 }
 

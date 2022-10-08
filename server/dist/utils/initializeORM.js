@@ -9,14 +9,12 @@ const User_1 = require("../entities/User");
 const typeorm_1 = require("typeorm");
 const path_1 = __importDefault(require("path"));
 const Vote_1 = require("../entities/Vote");
+require("dotenv-safe/config");
 exports.DATASOURCE = new typeorm_1.DataSource({
     type: 'postgres',
-    database: 'forumdb2',
-    username: 'postgres',
-    password: 'postgres',
+    url: process.env.DATABASE_URL,
     logging: true,
     migrations: [path_1.default.join(__dirname, "../migrations/*")],
-    synchronize: true,
     entities: [Post_1.Post, User_1.User, Vote_1.Vote]
 });
 //# sourceMappingURL=initializeORM.js.map

@@ -60,7 +60,10 @@ const Login: React.FC<loginProps> = ({}) => {
             
                 {/* Submit Button */}
                 <div className={styles.login__button} onClick={handleSubmit}>Login</div>
-                <a className={styles.login__forgotpassword} href="/forgot-password">Forgot Password?</a>
+
+                {/* This won't work unless I setup an email and I don't care for this project. */}
+                {/* <a className={styles.login__forgotpassword} href="/forgot-password">Forgot Password?</a> */}
+
                 {/* Error Messages */}
                 <h3 className={styles.login__error}>{errorMessage}</h3>
             </div>

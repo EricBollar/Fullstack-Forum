@@ -17,14 +17,16 @@ const cors_1 = __importDefault(require("cors"));
 const initializeORM_1 = require("./utils/initializeORM");
 const createUserLoader_1 = require("./utils/createUserLoader");
 const createVoteLoader_1 = require("./utils/createVoteLoader");
+require("dotenv-safe/config");
 const main = async () => {
     await initializeORM_1.DATASOURCE.initialize();
     await initializeORM_1.DATASOURCE.runMigrations();
     const app = (0, express_1.default)();
     const RedisStore = (0, connect_redis_1.default)(express_session_1.default);
-    const redis = new ioredis_1.default();
+    const redis = new ioredis_1.default(process.env.REDIS_URL);
+    app.set("trust proxy", 1);
     app.use((0, cors_1.default)({
-        origin: "http://localhost:3000",
+        origin: process.env.CORS_ORIGIN,
         credentials: true
     }));
     app.use((0, express_session_1.default)({
@@ -37,10 +39,11 @@ const main = async () => {
             maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
             httpOnly: true,
             sameSite: "lax",
-            secure: constants_1.__prod__
+            secure: constants_1.__prod__,
+            domain: constants_1.__prod__ ? ".fullstackforum.com" : undefined,
         },
         saveUninitialized: false,
-        secret: "secret",
+        secret: process.env.SESSION_SECRET,
         resave: false,
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
@@ -61,8 +64,8 @@ const main = async () => {
     });
     await apolloServer.start();
     apolloServer.applyMiddleware({ app, cors: false });
-    app.listen(4000, () => {
-        console.log("Server started on localhost:4000...");
+    app.listen(parseInt(process.env.PORT), () => {
+        console.log("Server started on port " + process.env.PORT);
     });
 };
 main().catch((err) => {
