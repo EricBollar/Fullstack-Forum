@@ -24,6 +24,12 @@
     margin-bottom: 10px;
 }
 
+.about__info > iframe {
+    border: 3px solid coral;
+    border-radius: 5%;
+    margin-bottom: 10px;
+}
+
 .about__feature {
     margin-bottom: 10px;
     display: flex;

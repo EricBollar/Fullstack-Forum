@@ -10,6 +10,8 @@ const About: React.FC<aboutProps> = () => {
     return (
         <div className={styles.about}>
             <div className={styles.about__info}>
+                <iframe width="" height="300" src="https://www.youtube.com/embed/ecObjii_C4o" title="PirateShips.io Demo" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                
                 <h2>About Fullstack-Forum</h2>
                 <div className={styles.about__intro}>
                     <p><i>This forum uses the following elements</i> ↓</p>
