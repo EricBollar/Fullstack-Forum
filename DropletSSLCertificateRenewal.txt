@@ -1,0 +1,14 @@
+SSH into droplet: ssh root@147.182.137.8 (droplet's public ip)
+
+If not password enabled, go on website to droplet->Access->Recovery Console (user is root)
+Reset root password if needed. Then, enable password auth: https://www.digitalocean.com/community/questions/how-to-enable-password-authentication-on-server-digital-ocean
+
+
+In droplet: letsencrypt
+
+If 'nginx: [emerg] "server_names_hash_bucket_size" directive is duplicate in /etc/nginx/conf.d/server_names_hash_bucket_size.conf:1'
+Then
+vim /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+Comment out the duplicate definition of server_names_hash_bucket_size
+
+See https://github.com/certbot/certbot/issues/5199
