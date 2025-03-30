@@ -1,7 +1,7 @@
 https://www.fullstackforum.com
 A fullstack web forum that lets users make accounts, create/edit/delete posts, and vote on posts.
 
-# Demo Video
+# Demo Video (Click to play)
 [![Fullstack Forum Video Demo](https://github.com/user-attachments/assets/d8ece0b0-5152-4ce4-9713-0d38cb65a7ac)](https://www.youtube.com/watch?v=ecObjii_C4o&ab_channel=asdf)
 
 # Local Setup (Mac)
