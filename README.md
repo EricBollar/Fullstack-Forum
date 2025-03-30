@@ -1,15 +1,10 @@
 https://www.fullstackforum.com
+A fullstack web forum that lets users make accounts, create/edit/delete posts, and vote on posts.
 
-A fullstack forum built using industry-standard tools such as Next.js and PostgresQL. Allows users to create accounts, create/edit/delete posts, and up/down vote posts.
+# Demo Video
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ecObjii_C4o&ab_channel=asdf/0.jpg)](https://www.youtube.com/watch?v=ecObjii_C4o&ab_channel=asdf)
 
-See more:
-https://www.ericbollar.com
-
-# Setup
-
-Tutorial: https://www.youtube.com/watch?v=I6ypD7qv3Z8&t=45400s&ab_channel=BenAwad
-
-Local Setup:
+# Local Setup (Mac)
 1. Install PostgresQl App (pgAdmin 4).
 	- https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 	- username: postgres, pword: postgres, Port: 5432 (default settings)
