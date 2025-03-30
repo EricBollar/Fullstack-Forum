@@ -2,7 +2,7 @@ https://www.fullstackforum.com
 A fullstack web forum that lets users make accounts, create/edit/delete posts, and vote on posts.
 
 # Demo Video
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ecObjii_C4o&ab_channel=asdf/0.jpg)](https://www.youtube.com/watch?v=ecObjii_C4o&ab_channel=asdf)
+[![Fullstack Forum Video Demo](https://github.com/user-attachments/assets/d8ece0b0-5152-4ce4-9713-0d38cb65a7ac)](https://www.youtube.com/watch?v=ecObjii_C4o&ab_channel=asdf)
 
 # Local Setup (Mac)
 1. Install PostgresQl App (pgAdmin 4).
